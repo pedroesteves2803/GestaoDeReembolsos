@@ -8,13 +8,11 @@ ConfigureServices(builder);
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 
-
 var app = builder.Build();
 app.MapControllers();
 app.UseSwagger();
 app.UseSwaggerUI();
 app.Run();
-
 
 void ConfigureServices(WebApplicationBuilder builder)
 {
@@ -26,11 +24,11 @@ void ConfigureMvc(WebApplicationBuilder builder)
 {
     builder
         .Services
-        .AddControllers()
-        .ConfigureApiBehaviorOptions(options =>
-        {
-            options.SuppressModelStateInvalidFilter = true;
-        });
+        .AddControllers();
+    // .ConfigureApiBehaviorOptions(options =>
+    // {
+    //     options.SuppressModelStateInvalidFilter = true;
+    // });
     // .AddJsonOptions(x =>
     // {
     //     // x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;

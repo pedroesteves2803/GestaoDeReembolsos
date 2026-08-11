@@ -1,0 +1,33 @@
+using GestaodeReembolsos.Enums;
+
+namespace GestaodeReembolsos.Models;
+
+public class User
+{
+    public Guid Id { get; set; } = Guid.NewGuid();
+
+    public string FullName { get; set; } = string.Empty;
+    
+    public string Email { get; set; } = string.Empty;
+
+    public string PasswordHash { get; set; } = string.Empty;
+
+    public Role Role { get; set; }
+
+    public Guid DepartmentId { get; set; }
+    
+    public Department Department { get; set; } = null!;
+    
+    public Guid? ManagerId { get; set; }
+
+    public User? Manager { get; set; }
+    
+    public bool IsActive { get; set; } = true;
+
+    public DateTime CreatedAtUtc { get; set; }
+    
+    public DateTime? UpdatedAtUtc { get; set; }
+
+    public ICollection<User> Subordinates { get; set; } = new List<User>();
+    
+}
