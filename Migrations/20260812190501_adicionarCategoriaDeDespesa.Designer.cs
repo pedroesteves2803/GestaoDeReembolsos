@@ -4,6 +4,7 @@ using GestaodeReembolsos.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GestaodeReembolsos.Migrations
 {
     [DbContext(typeof(GestaoDeReembolsoContext))]
-    partial class GestaoDeReembolsoContextModelSnapshot : ModelSnapshot
+    [Migration("20260812190501_adicionarCategoriaDeDespesa")]
+    partial class adicionarCategoriaDeDespesa
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -125,56 +128,6 @@ namespace GestaodeReembolsos.Migrations
                         .IsUnique();
 
                     b.ToTable("ExpenseCategories", (string)null);
-
-                    b.HasData(
-                        new
-                        {
-                            Id = new Guid("1d7d9f1c-cba5-488d-a718-5102401ee001"),
-                            IsActive = true,
-                            MonthlyLimit = 800m,
-                            Name = "Alimentação",
-                            RequiresReceipt = true
-                        },
-                        new
-                        {
-                            Id = new Guid("413b783c-2030-40a8-8a09-a03ea12cd002"),
-                            IsActive = true,
-                            MonthlyLimit = 600m,
-                            Name = "Transporte",
-                            RequiresReceipt = true
-                        },
-                        new
-                        {
-                            Id = new Guid("59f8b4b9-e72b-4dbd-955b-cb67e940e003"),
-                            IsActive = true,
-                            MonthlyLimit = 3000m,
-                            Name = "Hospedagem",
-                            RequiresReceipt = true
-                        },
-                        new
-                        {
-                            Id = new Guid("f741aa00-84e1-4a02-a5e4-249268fee004"),
-                            IsActive = true,
-                            MonthlyLimit = 500m,
-                            Name = "Material de escritório",
-                            RequiresReceipt = true
-                        },
-                        new
-                        {
-                            Id = new Guid("a80f04df-615f-4f0c-8efc-44f39543f005"),
-                            IsActive = true,
-                            MonthlyLimit = 1000m,
-                            Name = "Quilometragem",
-                            RequiresReceipt = false
-                        },
-                        new
-                        {
-                            Id = new Guid("bff56b5b-29d8-40f4-8e32-f9a4590d3006"),
-                            IsActive = true,
-                            MonthlyLimit = 300m,
-                            Name = "Outros",
-                            RequiresReceipt = true
-                        });
                 });
 
             modelBuilder.Entity("GestaodeReembolsos.Models.User", b =>

@@ -122,5 +122,55 @@ public static class ModelBuilderExtensions
             IsActive = true,
             CreatedAtUtc = seedCreatedAtUtc
         });
+
+        builder.Entity<ExpenseCategory>().HasData(
+            new ExpenseCategory
+            {
+                Id = Guid.Parse("1d7d9f1c-cba5-488d-a718-5102401ee001"),
+                Name = "Alimentação",
+                MonthlyLimit = 800m,
+                RequiresReceipt = true,
+                IsActive = true
+            },
+            new ExpenseCategory
+            {
+                Id = Guid.Parse("413b783c-2030-40a8-8a09-a03ea12cd002"),
+                Name = "Transporte",
+                MonthlyLimit = 600m,
+                RequiresReceipt = true,
+                IsActive = true
+            },
+            new ExpenseCategory
+            {
+                Id = Guid.Parse("59f8b4b9-e72b-4dbd-955b-cb67e940e003"),
+                Name = "Hospedagem",
+                MonthlyLimit = 3000m,
+                RequiresReceipt = true,
+                IsActive = true
+            },
+            new ExpenseCategory
+            {
+                Id = Guid.Parse("f741aa00-84e1-4a02-a5e4-249268fee004"),
+                Name = "Material de escritório",
+                MonthlyLimit = 500m,
+                RequiresReceipt = true,
+                IsActive = true
+            },
+            new ExpenseCategory
+            {
+                Id = Guid.Parse("a80f04df-615f-4f0c-8efc-44f39543f005"),
+                Name = "Quilometragem",
+                MonthlyLimit = 1000m,
+                RequiresReceipt = false,
+                IsActive = true
+            },
+            new ExpenseCategory
+            {
+                Id = Guid.Parse("bff56b5b-29d8-40f4-8e32-f9a4590d3006"),
+                Name = "Outros",
+                MonthlyLimit = 300m,
+                RequiresReceipt = true,
+                IsActive = true
+            });
     }
 }
