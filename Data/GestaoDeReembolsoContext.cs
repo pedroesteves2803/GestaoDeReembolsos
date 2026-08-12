@@ -1,3 +1,4 @@
+using GestaodeReembolsos.Data.Mappings;
 using GestaodeReembolsos.Extensions;
 using GestaodeReembolsos.Models;
 using Microsoft.EntityFrameworkCore;
@@ -10,6 +11,7 @@ public class GestaoDeReembolsoContext(DbContextOptions<GestaoDeReembolsoContext>
     public DbSet<User> Users { get; set; }
     public DbSet<Department> Departments { get; set; }
     public DbSet<ExpenseCategory> ExpenseCategories { get; set; }
+    public DbSet<ReimbursementRequest> ReimbursementRequests { get; set; }
     
     protected override void OnModelCreating(ModelBuilder builder)
     {

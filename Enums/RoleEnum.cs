@@ -1,6 +1,6 @@
 namespace GestaodeReembolsos.Enums;
 
-public enum Role
+public enum RoleEnum
 {
     Employee = 1,
     Manager = 2,

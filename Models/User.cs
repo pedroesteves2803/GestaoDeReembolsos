@@ -12,7 +12,7 @@ public class User
 
     public string PasswordHash { get; set; } = string.Empty;
 
-    public Role Role { get; set; }
+    public RoleEnum RoleEnum { get; set; }
 
     public Guid DepartmentId { get; set; }
     
@@ -29,5 +29,7 @@ public class User
     public DateTime? UpdatedAtUtc { get; set; }
 
     public ICollection<User> Subordinates { get; set; } = new List<User>();
+
+    public ICollection<ReimbursementRequest> Requests { get; set; } = new  List<ReimbursementRequest>();
     
 }

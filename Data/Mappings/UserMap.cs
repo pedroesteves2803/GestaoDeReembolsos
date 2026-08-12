@@ -29,7 +29,7 @@ public class UserMap : IEntityTypeConfiguration<User>
             .HasColumnName("PasswordHash")
             .IsRequired();
         
-        builder.Property(x => x.Role)
+        builder.Property(x => x.RoleEnum)
             .HasColumnName("Role")
             .HasConversion<string>()
             .HasMaxLength(20)
