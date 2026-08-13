@@ -32,4 +32,10 @@ public class User
 
     public ICollection<ReimbursementRequest> Requests { get; set; } = new  List<ReimbursementRequest>();
     
+    public ICollection<ApprovalDecision> ApprovalDecisions { get; set; } = new List<ApprovalDecision>();
+    public ICollection<RequestStatusHistory> RequestStatusHistories { get; set; } = new List<RequestStatusHistory>();
+    
+    public ICollection<Payment> Payments { get; set; } = new List<Payment>();
+
+    
 }

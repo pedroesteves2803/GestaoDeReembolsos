@@ -35,6 +35,12 @@ public class ReimbursementRequest
     public DateTime? UpdatedAtUtc { get; set; }
 
     public ICollection<ExpenseItem> ExpenseItems { get; set; } = new List<ExpenseItem>();
-
+    
+    public ICollection<ApprovalDecision> ApprovalDecisions { get; set; } = new List<ApprovalDecision>();
+    
+    public ICollection<RequestStatusHistory> RequestStatusHistories { get; set; } = new List<RequestStatusHistory>();
+    
+    public Payment? Payment { get; set; } = null!;
+    
     public byte[] Version { get; set; }  = [];
 }

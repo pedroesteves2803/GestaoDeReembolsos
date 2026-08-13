@@ -4,6 +4,7 @@ using GestaodeReembolsos.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GestaodeReembolsos.Migrations
 {
     [DbContext(typeof(GestaoDeReembolsoContext))]
-    partial class GestaoDeReembolsoContextModelSnapshot : ModelSnapshot
+    [Migration("20260813173150_AddApprovalDecisions")]
+    partial class AddApprovalDecisions
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -281,56 +284,6 @@ namespace GestaodeReembolsos.Migrations
                     b.ToTable("ExpenseItems", (string)null);
                 });
 
-            modelBuilder.Entity("GestaodeReembolsos.Models.Payment", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedAtUtc")
-                        .HasDefaultValueSql("(SYSUTCDATETIME())");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("Notes");
-
-                    b.Property<decimal>("PaidAmount")
-                        .HasColumnType("decimal(12,2)")
-                        .HasColumnName("PaidAmount");
-
-                    b.Property<DateOnly>("PaymentDate")
-                        .HasColumnType("date")
-                        .HasColumnName("PaymentDate");
-
-                    b.Property<string>("PaymentReference")
-                        .IsRequired()
-                        .HasMaxLength(100)
-                        .HasColumnType("nvarchar(100)")
-                        .HasColumnName("PaymentReference");
-
-                    b.Property<Guid>("ProcessedByUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ReimbursementRequestId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("PaymentReference")
-                        .IsUnique();
-
-                    b.HasIndex("ProcessedByUserId");
-
-                    b.HasIndex("ReimbursementRequestId")
-                        .IsUnique();
-
-                    b.ToTable("Payments", (string)null);
-                });
-
             modelBuilder.Entity("GestaodeReembolsos.Models.ReimbursementRequest", b =>
                 {
                     b.Property<Guid>("Id")
@@ -406,47 +359,6 @@ namespace GestaodeReembolsos.Migrations
                         .IsUnique();
 
                     b.ToTable("ReimbursementRequests", (string)null);
-                });
-
-            modelBuilder.Entity("GestaodeReembolsos.Models.RequestStatusHistory", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<Guid>("ChangedByUserId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.Property<DateTime>("CreatedAtUtc")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("datetime2")
-                        .HasColumnName("CreatedAtUtc")
-                        .HasDefaultValueSql("(SYSUTCDATETIME())");
-
-                    b.Property<string>("NewStatus")
-                        .IsRequired()
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("NewStatus");
-
-                    b.Property<string>("PreviousStatus")
-                        .HasColumnType("nvarchar(max)")
-                        .HasColumnName("PreviousStatus");
-
-                    b.Property<string>("Reason")
-                        .HasMaxLength(500)
-                        .HasColumnType("nvarchar(500)")
-                        .HasColumnName("Reason");
-
-                    b.Property<Guid>("ReimbursementRequestId")
-                        .HasColumnType("uniqueidentifier");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("ChangedByUserId");
-
-                    b.HasIndex("ReimbursementRequestId");
-
-                    b.ToTable("RequestStatusHistories", (string)null);
                 });
 
             modelBuilder.Entity("GestaodeReembolsos.Models.User", b =>
@@ -621,25 +533,6 @@ namespace GestaodeReembolsos.Migrations
                     b.Navigation("ReimbursementRequest");
                 });
 
-            modelBuilder.Entity("GestaodeReembolsos.Models.Payment", b =>
-                {
-                    b.HasOne("GestaodeReembolsos.Models.User", "ProcessedByUser")
-                        .WithMany("Payments")
-                        .HasForeignKey("ProcessedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("GestaodeReembolsos.Models.ReimbursementRequest", "ReimbursementRequest")
-                        .WithOne("Payment")
-                        .HasForeignKey("GestaodeReembolsos.Models.Payment", "ReimbursementRequestId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("ProcessedByUser");
-
-                    b.Navigation("ReimbursementRequest");
-                });
-
             modelBuilder.Entity("GestaodeReembolsos.Models.ReimbursementRequest", b =>
                 {
                     b.HasOne("GestaodeReembolsos.Models.Department", "Department")
@@ -657,25 +550,6 @@ namespace GestaodeReembolsos.Migrations
                     b.Navigation("Department");
 
                     b.Navigation("Employee");
-                });
-
-            modelBuilder.Entity("GestaodeReembolsos.Models.RequestStatusHistory", b =>
-                {
-                    b.HasOne("GestaodeReembolsos.Models.User", "ChangedByUser")
-                        .WithMany("RequestStatusHistories")
-                        .HasForeignKey("ChangedByUserId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.HasOne("GestaodeReembolsos.Models.ReimbursementRequest", "ReimbursementRequest")
-                        .WithMany("RequestStatusHistories")
-                        .HasForeignKey("ReimbursementRequestId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("ChangedByUser");
-
-                    b.Navigation("ReimbursementRequest");
                 });
 
             modelBuilder.Entity("GestaodeReembolsos.Models.User", b =>
@@ -713,19 +587,11 @@ namespace GestaodeReembolsos.Migrations
                     b.Navigation("ApprovalDecisions");
 
                     b.Navigation("ExpenseItems");
-
-                    b.Navigation("Payment");
-
-                    b.Navigation("RequestStatusHistories");
                 });
 
             modelBuilder.Entity("GestaodeReembolsos.Models.User", b =>
                 {
                     b.Navigation("ApprovalDecisions");
-
-                    b.Navigation("Payments");
-
-                    b.Navigation("RequestStatusHistories");
 
                     b.Navigation("Requests");
 
