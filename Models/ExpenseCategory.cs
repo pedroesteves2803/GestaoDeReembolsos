@@ -11,4 +11,6 @@ public class ExpenseCategory
     public bool RequiresReceipt { get; set; }
 
     public bool IsActive { get; set; } = true;
+    
+    public ICollection<ExpenseItem> ExpenseItems { get; set; } = new List<ExpenseItem>();
 }

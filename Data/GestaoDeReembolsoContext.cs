@@ -12,6 +12,7 @@ public class GestaoDeReembolsoContext(DbContextOptions<GestaoDeReembolsoContext>
     public DbSet<Department> Departments { get; set; }
     public DbSet<ExpenseCategory> ExpenseCategories { get; set; }
     public DbSet<ReimbursementRequest> ReimbursementRequests { get; set; }
+    public DbSet<ExpenseItem> ExpenseItems { get; set; }
     
     protected override void OnModelCreating(ModelBuilder builder)
     {

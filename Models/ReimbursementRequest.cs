@@ -34,5 +34,7 @@ public class ReimbursementRequest
     
     public DateTime? UpdatedAtUtc { get; set; }
 
+    public ICollection<ExpenseItem> ExpenseItems { get; set; } = new List<ExpenseItem>();
+
     public byte[] Version { get; set; }  = [];
 }
