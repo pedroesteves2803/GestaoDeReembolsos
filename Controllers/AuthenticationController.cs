@@ -1,5 +1,6 @@
 using GestaodeReembolsos.Data;
 using GestaodeReembolsos.Dtos;
+using GestaodeReembolsos.Dtos.Authentication;
 using GestaodeReembolsos.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;

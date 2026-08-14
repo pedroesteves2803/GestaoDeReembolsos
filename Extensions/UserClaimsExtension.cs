@@ -9,7 +9,7 @@ public static class UserClaimsExtension
     {
         return new List<Claim>()
         {
-            new Claim(ClaimTypes.Sid, user.Id.ToString()),
+            new Claim(ClaimTypes.NameIdentifier, user.Id.ToString()),
             new Claim(ClaimTypes.Email, user.Email),
             new Claim(ClaimTypes.Role, user.RoleEnum.ToString()),
             new Claim("departmentId", user.DepartmentId.ToString())

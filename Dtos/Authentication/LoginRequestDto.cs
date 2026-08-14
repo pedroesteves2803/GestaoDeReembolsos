@@ -1,6 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 
-namespace GestaodeReembolsos.Dtos;
+namespace GestaodeReembolsos.Dtos.Authentication;
 
 public class LoginRequestDto
 {
