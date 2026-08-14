@@ -75,4 +75,114 @@ public class ReimbursementRequestController: ControllerBase
             )
         );
     }
+
+    [Authorize(Roles = "Employee")]
+    [HttpPost("/api/v1/reimbursement-requests/{requestId}/items")]
+    public async Task<ActionResult> AddItem(
+        [FromRoute] Guid requestId,
+        [FromServices] GestaoDeReembolsoContext context, 
+        [FromBody] ExpenseItemRequestDto requestDto
+        )
+    {
+        if (requestId == Guid.Empty)
+            return BadRequest(new ApiResponseDto<ReimbursementRequestResponseDto>(
+                    false,
+                    "Id do reembolso inválido"
+                )
+            );
+        
+        var userIdentity = User.Identity as ClaimsIdentity;
+        
+        var employeeId = Guid.Parse(
+            userIdentity!.FindFirst(ClaimTypes.NameIdentifier)!.Value
+        );
+
+        var request = await context
+            .ReimbursementRequests
+            .Where(x => x.Id == requestId)
+            .Where(x => x.EmployeeId == employeeId)
+            .FirstOrDefaultAsync();
+
+        if (request == null)
+            return NotFound(
+                new ApiResponseDto<ReimbursementRequestResponseDto>(
+                    false,
+                    "Esse reembolso informado não existe."
+                )
+            );
+
+        if (request.Status != ReimbursementRequestEnum.Draft)
+            return Conflict(
+                new ApiResponseDto<ReimbursementRequestResponseDto>(
+                    false,
+                    "O status do reembolso não permite adicionar mais itens."
+                )
+            );
+
+        var today = DateOnly.FromDateTime(DateTime.UtcNow);
+
+        if (requestDto.ExpenseDate > today)
+            return BadRequest(
+                new ApiResponseDto<ExpenseItemResponseDto>(
+                    false,
+                    "A data da despesa não pode ser futura."
+                )
+            );
+
+        var oldestAllowedDate = DateOnly.FromDateTime(request.CreatedAtUtc)
+            .AddDays(-90);
+
+        if (requestDto.ExpenseDate < oldestAllowedDate)
+            return BadRequest(
+                new ApiResponseDto<ExpenseItemResponseDto>(
+                    false,
+                    "A data da despesa não pode ser anterior a 90 dias da criação da solicitação."
+                )
+            );
+
+        if (request.ReferenceMonth.Year != requestDto.ExpenseDate.Year ||
+            request.ReferenceMonth.Month != requestDto.ExpenseDate.Month)
+            return BadRequest(
+                new ApiResponseDto<ExpenseItemResponseDto>(
+                    false,
+                    "A data da despesa deve pertencer ao mês de referência."
+                )
+            );
+
+        var category = await context.ExpenseCategories
+            .Where(x => x.Id == requestDto.ExpenseCategoryId)
+            .Where(x => x.IsActive == true)
+            .FirstOrDefaultAsync();
+
+        if (category == null)
+            return NotFound(
+                new ApiResponseDto<ReimbursementRequestResponseDto>(
+                    false,
+                    "Categoria não existe"
+                )
+            );
+        
+        var expenseItem = new ExpenseItem
+        {
+            ReimbursementRequestId = requestId,
+            Amount = requestDto.Amount,
+            Description = requestDto.Description,
+            ExpenseCategoryId =  requestDto.ExpenseCategoryId,
+            MerchantName =  requestDto.MerchantName,
+            ExpenseDate = requestDto.ExpenseDate
+        };
+        
+       await context.ExpenseItems.AddAsync(expenseItem);
+
+        request.TotalAmount += requestDto.Amount;
+        
+        await context.SaveChangesAsync();
+
+        return StatusCode(201, new ApiResponseDto<ExpenseItemResponseDto>(
+                true,
+                "Item adicionado!",
+                new ExpenseItemResponseDto(expenseItem.Id)
+            )
+        );
+    }
 }

@@ -1,6 +1,7 @@
 using GestaodeReembolsos.Data;
 using GestaodeReembolsos.Dtos;
 using GestaodeReembolsos.Dtos.Authentication;
+using GestaodeReembolsos.Dtos.Shared;
 using GestaodeReembolsos.Services;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -23,20 +24,33 @@ public class AuthenticationController : ControllerBase
             .FirstOrDefaultAsync(x => x.Email == requestDto.Email);
 
         if (user == null)
-            return StatusCode(401, new LoginResponseDto("Usuário ou senha inválidos"));
+            return StatusCode(401, new ApiResponseDto<LoginResponseDto>(
+                true,
+                "Usuário ou senha inválidos"
+            ));
         
         if(!BCrypt.Net.BCrypt.Verify(requestDto.Password, user.PasswordHash))
-            return StatusCode(401, new LoginResponseDto("Usuário ou senha inválidos"));
-
+            return StatusCode(401, new ApiResponseDto<LoginResponseDto>(
+                true,
+                "Usuário ou senha inválidos"
+            ));
+        
         try
         {
             var token = tokenService.Generatetoken(user);
             
-            return StatusCode(200, new LoginResponseDto("Usuário logado!", token));
+            return StatusCode(200, new ApiResponseDto<LoginResponseDto>(
+                true,
+                "Autenticado com sucesso!",
+                new LoginResponseDto("Usuário logado!", token)
+                ));
         }
         catch
         {
-            return StatusCode(500, new LoginResponseDto("Erro interno do servidor"));
+            return StatusCode(500, new ApiResponseDto<LoginResponseDto>(
+                true,
+                "Erro interno do servidor"
+            ));
         }
     }
 }
