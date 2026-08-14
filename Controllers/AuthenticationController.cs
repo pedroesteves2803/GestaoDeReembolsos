@@ -42,7 +42,7 @@ public class AuthenticationController : ControllerBase
             return StatusCode(200, new ApiResponseDto<LoginResponseDto>(
                 true,
                 "Autenticado com sucesso!",
-                new LoginResponseDto("Usuário logado!", token)
+                new LoginResponseDto(token)
                 ));
         }
         catch
