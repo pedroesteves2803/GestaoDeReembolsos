@@ -22,7 +22,7 @@ public class ReimbursementRequest
 
     public decimal TotalAmount { get; set; }
 
-    public DateTime? SubmittedAtUtc { get; set; }
+    public DateTime SubmittedAtUtc { get; set; }
     
     public DateTime? ManagerDecisionAtUtc { get; set; }
 

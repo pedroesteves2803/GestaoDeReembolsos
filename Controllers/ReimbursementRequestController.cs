@@ -185,4 +185,87 @@ public class ReimbursementRequestController: ControllerBase
             )
         );
     }
+
+    [Authorize(Roles = "Employee")]
+    [HttpPost("/api/v1/reimbursement-requests/{requestId}/submit")]
+    public async Task<ActionResult> Submit(
+        [FromRoute] Guid requestId,
+        [FromServices] GestaoDeReembolsoContext context
+        )
+    {
+        if (requestId == Guid.Empty)
+            return BadRequest(new ApiResponseDto<ReimbursementRequestResponseDto>(
+                    false,
+                    "Id do reembolso inválido"
+                )
+            );
+        
+                
+        var userIdentity = User.Identity as ClaimsIdentity;
+        
+        var employeeId = Guid.Parse(
+            userIdentity!.FindFirst(ClaimTypes.NameIdentifier)!.Value
+        );
+        
+        var reimbursementRequest = await context
+            .ReimbursementRequests
+            .Where(x => x.Id == requestId)
+            .Where(x => x.EmployeeId == employeeId)
+            .FirstOrDefaultAsync();
+
+        if (reimbursementRequest == null)
+            return NotFound(
+                new ApiResponseDto<ReimbursementRequestResponseDto>(
+                    false,
+                    "Esse reembolso informado não existe."
+                )
+            );
+
+        if (reimbursementRequest.Status != ReimbursementRequestEnum.Draft)
+            return Conflict(
+                new ApiResponseDto<ReimbursementRequestResponseDto>(
+                    false,
+                    "O status do reembolso não permite enviar para aprovação."
+                )
+            );
+
+        var existItems = await context
+            .ExpenseItems
+            .AnyAsync(x => x.ReimbursementRequestId == requestId);
+        
+        if (!existItems)
+            return Conflict(
+                new ApiResponseDto<ReimbursementRequestResponseDto>(
+                    false,
+                    "Adicione pelo menos um item antes de enviar a solicitação."
+                )
+            );
+        
+        reimbursementRequest.Status = ReimbursementRequestEnum.PendingManagerApproval;
+        reimbursementRequest.SubmittedAtUtc = DateTime.UtcNow;
+        reimbursementRequest.UpdatedAtUtc = DateTime.UtcNow;
+
+        await context.RequestStatusHistories.AddAsync(new RequestStatusHistory
+        {
+            ReimbursementRequestId = reimbursementRequest.Id,
+            PreviousStatus = ReimbursementRequestEnum.Draft,
+            NewStatus = ReimbursementRequestEnum.PendingManagerApproval,
+            ChangedByUserId = reimbursementRequest.EmployeeId,
+            Reason = null,
+        });
+        
+        await context.SaveChangesAsync();
+
+        return Ok(new ApiResponseDto<SubmitResponseDto>(
+            true,
+            "Enviado com sucesso!",
+            new SubmitResponseDto(
+                reimbursementRequest.Id,
+                reimbursementRequest.RequestNumber,
+                reimbursementRequest.Status,
+                reimbursementRequest.SubmittedAtUtc
+                )
+        ));
+    }
+    
 }
