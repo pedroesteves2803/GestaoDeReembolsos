@@ -25,13 +25,13 @@ public class AuthenticationController : ControllerBase
 
         if (user == null)
             return StatusCode(401, new ApiResponseDto<LoginResponseDto>(
-                true,
+                false,
                 "Usuário ou senha inválidos"
             ));
         
         if(!BCrypt.Net.BCrypt.Verify(requestDto.Password, user.PasswordHash))
             return StatusCode(401, new ApiResponseDto<LoginResponseDto>(
-                true,
+                false,
                 "Usuário ou senha inválidos"
             ));
         
@@ -48,7 +48,7 @@ public class AuthenticationController : ControllerBase
         catch
         {
             return StatusCode(500, new ApiResponseDto<LoginResponseDto>(
-                true,
+                false,
                 "Erro interno do servidor"
             ));
         }
