@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace GestaodeReembolsos.Data.Mappings;
 
-public class RequestStatusHistoryMap : IEntityTypeConfiguration<HistoricoStatusSolicitacao>
+public class HistoricoStatusSolicitacaoMap : IEntityTypeConfiguration<HistoricoStatusSolicitacao>
 {
     public void Configure(EntityTypeBuilder<HistoricoStatusSolicitacao> builder)
     {

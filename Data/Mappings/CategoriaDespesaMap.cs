@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace GestaodeReembolsos.Data.Mappings;
 
-public class ExpenseCategoryMap: IEntityTypeConfiguration<CategoriaDespesa>
+public class CategoriaDespesaMap: IEntityTypeConfiguration<CategoriaDespesa>
 {
     public void Configure(EntityTypeBuilder<CategoriaDespesa> builder)
     {

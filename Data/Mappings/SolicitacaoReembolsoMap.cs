@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace GestaodeReembolsos.Data.Mappings;
 
-public class ReimbursementRequestMap : IEntityTypeConfiguration<SolicitacaoReembolso>
+public class SolicitacaoReembolsoMap : IEntityTypeConfiguration<SolicitacaoReembolso>
 {
     public void Configure(EntityTypeBuilder<SolicitacaoReembolso> builder)
     {

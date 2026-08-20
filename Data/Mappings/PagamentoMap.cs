@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace GestaodeReembolsos.Data.Mappings;
 
-public class PaymentMap : IEntityTypeConfiguration<Pagamento>
+public class PagamentoMap : IEntityTypeConfiguration<Pagamento>
 {
     public void Configure(EntityTypeBuilder<Pagamento> builder)
     {

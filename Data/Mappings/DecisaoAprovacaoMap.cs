@@ -4,7 +4,7 @@ using Microsoft.EntityFrameworkCore.Metadata.Builders;
 
 namespace GestaodeReembolsos.Data.Mappings;
 
-public class ApprovalDecisionMap : IEntityTypeConfiguration<DecisaoAprovacao>
+public class DecisaoAprovacaoMap : IEntityTypeConfiguration<DecisaoAprovacao>
 {
     public void Configure(EntityTypeBuilder<DecisaoAprovacao> builder)
     {
