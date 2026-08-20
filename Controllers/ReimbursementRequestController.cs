@@ -87,7 +87,7 @@ public class ReimbursementRequestController: ControllerBase
         if (requestId == Guid.Empty)
             return BadRequest(new ApiResponseDto<ReimbursementRequestResponseDto>(
                     false,
-                    "Id do reembolso inválido"
+                    "O identificador da solicitação é inválido."
                 )
             );
         
@@ -267,5 +267,117 @@ public class ReimbursementRequestController: ControllerBase
                 )
         ));
     }
-    
+
+    [Authorize(Roles = "Manager")]
+    [HttpPost("/api/v1/reimbursement-requests/{requestId}/manager-decision")]
+    public async Task<ActionResult> Decision(
+        [FromRoute] Guid requestId,
+        [FromBody] DecisionManagerRequestDto reimbursementRequestDto,
+        [FromServices] GestaoDeReembolsoContext context
+        )
+    {
+        
+        if (requestId == Guid.Empty)
+            return BadRequest(new ApiResponseDto<ReimbursementRequestResponseDto>(
+                    false,
+                    "Id do reembolso inválido"
+                )
+            );
+        
+        if (!Enum.IsDefined(reimbursementRequestDto.Decision))
+        {
+            return BadRequest(
+                new ApiResponseDto<DecisionManagerResponseDto>(
+                    false,
+                    "A decisão informada é inválida."
+                )
+            );
+        }
+        
+        var userIdentity = User.Identity as ClaimsIdentity;
+        
+        var managerId = Guid.Parse(
+            userIdentity!.FindFirst(ClaimTypes.NameIdentifier)!.Value
+        );
+
+        var reimbursementRequest = await context.ReimbursementRequests  
+            .Where(x => x.Id == requestId)
+            .FirstOrDefaultAsync();
+        
+        if (reimbursementRequest == null)
+            return NotFound(
+                new ApiResponseDto<ReimbursementRequestResponseDto>(
+                    false,
+                    "A solicitação de reembolso não foi encontrada."
+                )
+            );
+        
+        if(reimbursementRequest.Status != ReimbursementRequestEnum.PendingManagerApproval)
+            return Conflict(
+                new ApiResponseDto<ReimbursementRequestResponseDto>(
+                    false,
+                    "A solicitação não está aguardando a aprovação do gestor."
+                )
+            );
+
+        var user = await context.Users
+            .Where(x => x.Id == reimbursementRequest.EmployeeId)
+            .Where(x => x.ManagerId == managerId)
+            .FirstOrDefaultAsync();
+         
+         if(user == null)
+             return NotFound(
+                 new ApiResponseDto<ReimbursementRequestResponseDto>(
+                     false,
+                     "Você não é o gestor responsável por esta solicitação."
+                 )
+             );
+
+         if(reimbursementRequestDto.Decision == Enums.Decision.Approved)
+            reimbursementRequest.Status = ReimbursementRequestEnum.PendingFinanceValidation;
+         
+         if(reimbursementRequestDto.Decision == Enums.Decision.Rejected)
+             reimbursementRequest.Status = ReimbursementRequestEnum.RejectedByManager;
+
+         if(reimbursementRequestDto.Decision == Enums.Decision.Returned)
+             reimbursementRequest.Status = ReimbursementRequestEnum.ReturnedByManager;
+         
+         reimbursementRequest.ManagerDecisionAtUtc = DateTime.UtcNow;
+         reimbursementRequest.UpdatedAtUtc =  DateTime.UtcNow;
+         
+        var approvalDecision = new ApprovalDecision
+        {
+            ReimbursementRequestId = reimbursementRequest.Id,
+            DecidedByUserId = managerId,
+            Comment =  reimbursementRequestDto.Comment,
+            Decision =  reimbursementRequestDto.Decision,
+            DecisionLevel = DecisionLevel.Manager,
+            CreatedAtUtc =  DateTime.UtcNow,
+        };
+        
+        await context.ApprovalDecisions.AddAsync(approvalDecision);
+        
+        await context.RequestStatusHistories.AddAsync(new RequestStatusHistory
+        {
+            ReimbursementRequestId = reimbursementRequest.Id,
+            PreviousStatus = ReimbursementRequestEnum.PendingManagerApproval,
+            NewStatus = reimbursementRequest.Status,
+            ChangedByUserId = managerId,
+            Reason = null,
+        });
+        
+        await context.SaveChangesAsync();
+        
+        return Ok(new ApiResponseDto<DecisionManagerResponseDto>(
+            true,
+            "Decisão do gestor registrada com sucesso!",
+            new DecisionManagerResponseDto(
+                reimbursementRequest.Id,
+                reimbursementRequest.RequestNumber,
+                approvalDecision.Decision,
+                reimbursementRequest.Status,
+                reimbursementRequest.ManagerDecisionAtUtc
+            )
+        ));
+    }
 }

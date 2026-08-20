@@ -24,7 +24,7 @@ public class ReimbursementRequest
 
     public DateTime SubmittedAtUtc { get; set; }
     
-    public DateTime? ManagerDecisionAtUtc { get; set; }
+    public DateTime ManagerDecisionAtUtc { get; set; }
 
     public DateTime? FinanceDecisionAtUtc { get; set; }
 
