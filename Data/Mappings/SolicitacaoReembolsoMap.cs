@@ -8,7 +8,7 @@ public class SolicitacaoReembolsoMap : IEntityTypeConfiguration<SolicitacaoReemb
 {
     public void Configure(EntityTypeBuilder<SolicitacaoReembolso> builder)
     {
-        builder.ToTable("ReimbursementRequests");
+        builder.ToTable("SolicitacoesReembolso");
         
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id)

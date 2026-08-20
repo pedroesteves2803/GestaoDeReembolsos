@@ -8,7 +8,7 @@ public class DepartamentoMap: IEntityTypeConfiguration<Departamento>
 {
     public void Configure(EntityTypeBuilder<Departamento> builder)
     {
-        builder.ToTable("Departments");
+        builder.ToTable("Departamentos");
         
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id)

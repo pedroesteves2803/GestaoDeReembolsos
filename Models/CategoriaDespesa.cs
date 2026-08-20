@@ -12,5 +12,5 @@ public class CategoriaDespesa
 
     public bool Ativo { get; set; } = true;
     
-    public ICollection<ItemDespesa> ExpenseItems { get; set; } = new List<ItemDespesa>();
+    public ICollection<ItemDespesa> ItensDespesa { get; set; } = new List<ItemDespesa>();
 }

@@ -8,7 +8,7 @@ public class UsuarioMap : IEntityTypeConfiguration<Usuario>
 {
     public void Configure(EntityTypeBuilder<Usuario> builder)
     {
-        builder.ToTable("Users");
+        builder.ToTable("Usuarios");
         
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id)
@@ -59,7 +59,7 @@ public class UsuarioMap : IEntityTypeConfiguration<Usuario>
 
         builder
             .HasOne(x => x.Departamento)
-            .WithMany(x => x.Users)
+            .WithMany(x => x.Usuarios)
             .HasForeignKey(x => x.DepartamentoId)
             .OnDelete(DeleteBehavior.Restrict);
         

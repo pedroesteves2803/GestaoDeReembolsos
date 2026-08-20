@@ -8,7 +8,7 @@ public class PagamentoMap : IEntityTypeConfiguration<Pagamento>
 {
     public void Configure(EntityTypeBuilder<Pagamento> builder)
     {
-        builder.ToTable("Payments");
+        builder.ToTable("Pagamentos");
         
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id)
@@ -45,7 +45,7 @@ public class PagamentoMap : IEntityTypeConfiguration<Pagamento>
             .OnDelete(DeleteBehavior.Restrict);
 
         builder.HasOne(x => x.ProcessedByUser)
-            .WithMany(x => x.Payments)
+            .WithMany(x => x.Pagamentos)
             .HasForeignKey(x => x.ProcessadoPorUsuarioId)
             .OnDelete(DeleteBehavior.Restrict);
         

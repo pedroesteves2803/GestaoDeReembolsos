@@ -2,8 +2,8 @@ namespace GestaodeReembolsos.Enums;
 
 public enum StatusSolicitacaoReembolso
 {
-   Draft = 1, 
-   PendingManagerApproval = 2, 
+   Rascunho = 1, 
+   AguardandoAprovacaoGestor = 2, 
    RejectedByManager = 3, 
    ReturnedByManager = 4, 
    PendingFinanceValidation = 5, 

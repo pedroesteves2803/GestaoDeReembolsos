@@ -8,7 +8,7 @@ public class CategoriaDespesaMap: IEntityTypeConfiguration<CategoriaDespesa>
 {
     public void Configure(EntityTypeBuilder<CategoriaDespesa> builder)
     {
-        builder.ToTable("ExpenseCategories");
+        builder.ToTable("CategoriasDespesa");
         
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id)

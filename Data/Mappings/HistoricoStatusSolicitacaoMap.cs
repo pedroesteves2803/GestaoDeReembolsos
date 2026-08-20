@@ -8,7 +8,7 @@ public class HistoricoStatusSolicitacaoMap : IEntityTypeConfiguration<HistoricoS
 {
     public void Configure(EntityTypeBuilder<HistoricoStatusSolicitacao> builder)
     {
-        builder.ToTable("RequestStatusHistories");
+        builder.ToTable("HistoricosStatusSolicitacao");
 
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id)
@@ -35,13 +35,13 @@ public class HistoricoStatusSolicitacaoMap : IEntityTypeConfiguration<HistoricoS
         
         builder
             .HasOne(x => x.SolicitacaoReembolso)
-            .WithMany(x => x.RequestStatusHistories)
+            .WithMany(x => x.HistoricosStatusSolicitacao)
             .HasForeignKey(x => x.SolicitacaoReembolsoId)
             .OnDelete(DeleteBehavior.Restrict);
         
         builder
             .HasOne(x => x.ChangedByUser)
-            .WithMany(x => x.RequestStatusHistories)
+            .WithMany(x => x.HistoricosStatusSolicitacao)
             .HasForeignKey(x => x.AlteradoPorUsuarioId)
             .OnDelete(DeleteBehavior.Restrict);
 

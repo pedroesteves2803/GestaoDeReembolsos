@@ -2,7 +2,7 @@ namespace GestaodeReembolsos.Enums;
 
 public enum Decisao
 {
-    Approved = 1,
-    Rejected = 2,
-    Returned = 3
+    Aprovada = 1,
+    Rejeitada = 2,
+    Devolvida = 3
 }

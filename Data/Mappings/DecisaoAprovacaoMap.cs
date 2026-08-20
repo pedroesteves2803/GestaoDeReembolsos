@@ -8,7 +8,7 @@ public class DecisaoAprovacaoMap : IEntityTypeConfiguration<DecisaoAprovacao>
 {
     public void Configure(EntityTypeBuilder<DecisaoAprovacao> builder)
     {
-        builder.ToTable("ApprovalDecisions");
+        builder.ToTable("DecisoesAprovacao");
         
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id)
@@ -35,12 +35,12 @@ public class DecisaoAprovacaoMap : IEntityTypeConfiguration<DecisaoAprovacao>
             .IsRequired();
         
         builder.HasOne(x => x.SolicitacaoReembolso)
-            .WithMany(x => x.ApprovalDecisions)
+            .WithMany(x => x.DecisoesAprovacao)
             .HasForeignKey(x => x.SolicitacaoReembolsoId)
             .OnDelete(DeleteBehavior.Restrict);
         
         builder.HasOne(x => x.DecidedByUser)
-            .WithMany(x => x.ApprovalDecisions)
+            .WithMany(x => x.DecisoesAprovacao)
             .HasForeignKey(x => x.DecididaPorUsuarioId)
             .OnDelete(DeleteBehavior.Restrict);
 

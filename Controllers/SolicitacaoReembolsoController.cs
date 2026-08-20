@@ -21,7 +21,7 @@ public class ReimbursementRequestController: ControllerBase
         )
     {
         var departamento = await context
-            .Departments
+            .Departamentos
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Id == dto.DepartamentoId);
         
@@ -47,17 +47,17 @@ public class ReimbursementRequestController: ControllerBase
             NumeroSolicitacao = $"REQ-{Guid.NewGuid():N}"[..20].ToUpperInvariant(),
             DepartamentoId = dto.DepartamentoId,
             MesReferencia = dto.MesReferencia,
-            Status = StatusSolicitacaoReembolso.Draft,
+            Status = StatusSolicitacaoReembolso.Rascunho,
             ValorTotal = 0
         };
         
-        await context.ReimbursementRequests.AddAsync(solicitacao);
+        await context.SolicitacoesReembolso.AddAsync(solicitacao);
 
-        await context.RequestStatusHistories.AddAsync(new HistoricoStatusSolicitacao
+        await context.HistoricosStatusSolicitacao.AddAsync(new HistoricoStatusSolicitacao
         {
             SolicitacaoReembolsoId = solicitacao.Id,
             StatusAnterior = null,
-            NovoStatus = StatusSolicitacaoReembolso.Draft,
+            NovoStatus = StatusSolicitacaoReembolso.Rascunho,
             AlteradoPorUsuarioId = solicitacao.ColaboradorId,
             Reason = null,
         });
@@ -98,7 +98,7 @@ public class ReimbursementRequestController: ControllerBase
         );
 
         var request = await context
-            .ReimbursementRequests
+            .SolicitacoesReembolso
             .Where(x => x.Id == idSolicitacao)
             .Where(x => x.ColaboradorId == colaboradorId)
             .FirstOrDefaultAsync();
@@ -111,7 +111,7 @@ public class ReimbursementRequestController: ControllerBase
                 )
             );
 
-        if (request.Status != StatusSolicitacaoReembolso.Draft)
+        if (request.Status != StatusSolicitacaoReembolso.Rascunho)
             return Conflict(
                 new ApiResponseDto<SolicitacaoReembolsoResponseDto>(
                     false,
@@ -149,7 +149,7 @@ public class ReimbursementRequestController: ControllerBase
                 )
             );
 
-        var categoria = await context.ExpenseCategories
+        var categoria = await context.CategoriasDespesa
             .Where(x => x.Id == dto.CategoriaDespesaId)
             .Where(x => x.Ativo == true)
             .FirstOrDefaultAsync();
@@ -172,7 +172,7 @@ public class ReimbursementRequestController: ControllerBase
             DataDespesa = dto.DataDespesa
         };
         
-       await context.ExpenseItems.AddAsync(itemDespesa);
+       await context.ItensDespesa.AddAsync(itemDespesa);
 
         request.ValorTotal += dto.Valor;
         
@@ -208,7 +208,7 @@ public class ReimbursementRequestController: ControllerBase
         );
         
         var solicitacao = await context
-            .ReimbursementRequests
+            .SolicitacoesReembolso
             .Where(x => x.Id == idSolicitacao)
             .Where(x => x.ColaboradorId == colaboradorId)
             .FirstOrDefaultAsync();
@@ -221,7 +221,7 @@ public class ReimbursementRequestController: ControllerBase
                 )
             );
 
-        if (solicitacao.Status != StatusSolicitacaoReembolso.Draft)
+        if (solicitacao.Status != StatusSolicitacaoReembolso.Rascunho)
             return Conflict(
                 new ApiResponseDto<SolicitacaoReembolsoResponseDto>(
                     false,
@@ -230,7 +230,7 @@ public class ReimbursementRequestController: ControllerBase
             );
 
         var existemItens = await context
-            .ExpenseItems
+            .ItensDespesa
             .AnyAsync(x => x.SolicitacaoReembolsoId == idSolicitacao);
         
         if (!existemItens)
@@ -241,15 +241,15 @@ public class ReimbursementRequestController: ControllerBase
                 )
             );
         
-        solicitacao.Status = StatusSolicitacaoReembolso.PendingManagerApproval;
+        solicitacao.Status = StatusSolicitacaoReembolso.AguardandoAprovacaoGestor;
         solicitacao.EnviadaEmUtc = DateTime.UtcNow;
         solicitacao.AtualizadaEmUtc = DateTime.UtcNow;
 
-        await context.RequestStatusHistories.AddAsync(new HistoricoStatusSolicitacao
+        await context.HistoricosStatusSolicitacao.AddAsync(new HistoricoStatusSolicitacao
         {
             SolicitacaoReembolsoId = solicitacao.Id,
-            StatusAnterior = StatusSolicitacaoReembolso.Draft,
-            NovoStatus = StatusSolicitacaoReembolso.PendingManagerApproval,
+            StatusAnterior = StatusSolicitacaoReembolso.Rascunho,
+            NovoStatus = StatusSolicitacaoReembolso.AguardandoAprovacaoGestor,
             AlteradoPorUsuarioId = solicitacao.ColaboradorId,
             Reason = null,
         });
@@ -300,7 +300,7 @@ public class ReimbursementRequestController: ControllerBase
             identidadeUsuario!.FindFirst(ClaimTypes.NameIdentifier)!.Value
         );
 
-        var solicitacao = await context.ReimbursementRequests  
+        var solicitacao = await context.SolicitacoesReembolso  
             .Where(x => x.Id == idSolicitacao)
             .FirstOrDefaultAsync();
         
@@ -312,7 +312,7 @@ public class ReimbursementRequestController: ControllerBase
                 )
             );
         
-        if(solicitacao.Status != StatusSolicitacaoReembolso.PendingManagerApproval)
+        if(solicitacao.Status != StatusSolicitacaoReembolso.AguardandoAprovacaoGestor)
             return Conflict(
                 new ApiResponseDto<SolicitacaoReembolsoResponseDto>(
                     false,
@@ -320,7 +320,7 @@ public class ReimbursementRequestController: ControllerBase
                 )
             );
 
-        var usuario = await context.Users
+        var usuario = await context.Usuarios
             .Where(x => x.Id == solicitacao.ColaboradorId)
             .Where(x => x.GestorId == gestorId)
             .FirstOrDefaultAsync();
@@ -333,13 +333,13 @@ public class ReimbursementRequestController: ControllerBase
                  )
              );
 
-         if(dtoDecisao.Decisao == Enums.Decisao.Approved)
+         if(dtoDecisao.Decisao == Enums.Decisao.Aprovada)
             solicitacao.Status = StatusSolicitacaoReembolso.PendingFinanceValidation;
          
-         if(dtoDecisao.Decisao == Enums.Decisao.Rejected)
+         if(dtoDecisao.Decisao == Enums.Decisao.Rejeitada)
              solicitacao.Status = StatusSolicitacaoReembolso.RejectedByManager;
 
-         if(dtoDecisao.Decisao == Enums.Decisao.Returned)
+         if(dtoDecisao.Decisao == Enums.Decisao.Devolvida)
              solicitacao.Status = StatusSolicitacaoReembolso.ReturnedByManager;
          
          solicitacao.DecididaPeloGestorEmUtc = DateTime.UtcNow;
@@ -355,12 +355,12 @@ public class ReimbursementRequestController: ControllerBase
             CriadaEmUtc =  DateTime.UtcNow,
         };
         
-        await context.ApprovalDecisions.AddAsync(decisaoAprovacao);
+        await context.DecisoesAprovacao.AddAsync(decisaoAprovacao);
         
-        await context.RequestStatusHistories.AddAsync(new HistoricoStatusSolicitacao
+        await context.HistoricosStatusSolicitacao.AddAsync(new HistoricoStatusSolicitacao
         {
             SolicitacaoReembolsoId = solicitacao.Id,
-            StatusAnterior = StatusSolicitacaoReembolso.PendingManagerApproval,
+            StatusAnterior = StatusSolicitacaoReembolso.AguardandoAprovacaoGestor,
             NovoStatus = solicitacao.Status,
             AlteradoPorUsuarioId = gestorId,
             Reason = null,

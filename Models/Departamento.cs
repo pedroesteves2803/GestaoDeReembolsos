@@ -12,7 +12,7 @@ public class Departamento
     
     public DateTime CriadaEmUtc { get; set; }
 
-    public ICollection<Usuario> Users { get; set; } = new List<Usuario>();
+    public ICollection<Usuario> Usuarios { get; set; } = new List<Usuario>();
     
     public ICollection<SolicitacaoReembolso> Requests { get; set; } = new List<SolicitacaoReembolso>();
     

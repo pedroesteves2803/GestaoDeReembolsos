@@ -32,10 +32,10 @@ public class Usuario
 
     public ICollection<SolicitacaoReembolso> Requests { get; set; } = new  List<SolicitacaoReembolso>();
     
-    public ICollection<DecisaoAprovacao> ApprovalDecisions { get; set; } = new List<DecisaoAprovacao>();
-    public ICollection<HistoricoStatusSolicitacao> RequestStatusHistories { get; set; } = new List<HistoricoStatusSolicitacao>();
+    public ICollection<DecisaoAprovacao> DecisoesAprovacao { get; set; } = new List<DecisaoAprovacao>();
+    public ICollection<HistoricoStatusSolicitacao> HistoricosStatusSolicitacao { get; set; } = new List<HistoricoStatusSolicitacao>();
     
-    public ICollection<Pagamento> Payments { get; set; } = new List<Pagamento>();
+    public ICollection<Pagamento> Pagamentos { get; set; } = new List<Pagamento>();
 
     
 }

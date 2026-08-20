@@ -19,7 +19,7 @@ public class AutenticacaoController : ControllerBase
         )
     {
         var usuario = await context
-            .Users
+            .Usuarios
             .AsNoTracking()
             .FirstOrDefaultAsync(x => x.Email == dto.Email);
 

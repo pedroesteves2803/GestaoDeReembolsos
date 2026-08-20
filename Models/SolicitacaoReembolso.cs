@@ -34,11 +34,11 @@ public class SolicitacaoReembolso
     
     public DateTime? AtualizadaEmUtc { get; set; }
 
-    public ICollection<ItemDespesa> ExpenseItems { get; set; } = new List<ItemDespesa>();
+    public ICollection<ItemDespesa> ItensDespesa { get; set; } = new List<ItemDespesa>();
     
-    public ICollection<DecisaoAprovacao> ApprovalDecisions { get; set; } = new List<DecisaoAprovacao>();
+    public ICollection<DecisaoAprovacao> DecisoesAprovacao { get; set; } = new List<DecisaoAprovacao>();
     
-    public ICollection<HistoricoStatusSolicitacao> RequestStatusHistories { get; set; } = new List<HistoricoStatusSolicitacao>();
+    public ICollection<HistoricoStatusSolicitacao> HistoricosStatusSolicitacao { get; set; } = new List<HistoricoStatusSolicitacao>();
     
     public Pagamento? Pagamento { get; set; } = null!;
     

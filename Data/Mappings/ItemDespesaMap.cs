@@ -8,7 +8,7 @@ public class ItemDespesaMap : IEntityTypeConfiguration<ItemDespesa>
 {
     public void Configure(EntityTypeBuilder<ItemDespesa> builder)
     {
-        builder.ToTable("ExpenseItems");
+        builder.ToTable("ItensDespesa");
         
         builder.HasKey(x => x.Id);
         builder.Property(x => x.Id)
@@ -54,12 +54,12 @@ public class ItemDespesaMap : IEntityTypeConfiguration<ItemDespesa>
             .HasColumnType("datetime2");
 
         builder.HasOne(x => x.SolicitacaoReembolso)
-            .WithMany(x => x.ExpenseItems)
+            .WithMany(x => x.ItensDespesa)
             .HasForeignKey(x => x.SolicitacaoReembolsoId)
             .OnDelete(DeleteBehavior.Restrict);
         
         builder.HasOne(x => x.CategoriaDespesa)
-            .WithMany(x => x.ExpenseItems)
+            .WithMany(x => x.ItensDespesa)
             .HasForeignKey(x => x.CategoriaDespesaId)
             .OnDelete(DeleteBehavior.Restrict);
     }
