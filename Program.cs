@@ -62,7 +62,7 @@ void ConfigureServices(WebApplicationBuilder builder)
 {
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
     builder.Services.AddDbContext<GestaoDeReembolsoContext>(options => options.UseSqlServer(connectionString));
-    builder.Services.AddTransient<TokenService>();
+    builder.Services.AddTransient<ServicoToken>();
 }
 
 void ConfigureAuthentication(WebApplicationBuilder builder)

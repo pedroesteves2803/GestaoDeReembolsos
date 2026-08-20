@@ -8,14 +8,14 @@ namespace GestaodeReembolsos.Data;
 public class GestaoDeReembolsoContext(DbContextOptions<GestaoDeReembolsoContext> options) 
     : DbContext(options)
 {
-    public DbSet<User> Users { get; set; }
-    public DbSet<Department> Departments { get; set; }
-    public DbSet<ExpenseCategory> ExpenseCategories { get; set; }
-    public DbSet<ReimbursementRequest> ReimbursementRequests { get; set; }
-    public DbSet<ExpenseItem> ExpenseItems { get; set; }
-    public DbSet<ApprovalDecision> ApprovalDecisions { get; set; }
-    public DbSet<Payment> Payments { get; set; }
-    public DbSet<RequestStatusHistory> RequestStatusHistories { get; set; }
+    public DbSet<Usuario> Users { get; set; }
+    public DbSet<Departamento> Departments { get; set; }
+    public DbSet<CategoriaDespesa> ExpenseCategories { get; set; }
+    public DbSet<SolicitacaoReembolso> ReimbursementRequests { get; set; }
+    public DbSet<ItemDespesa> ExpenseItems { get; set; }
+    public DbSet<DecisaoAprovacao> ApprovalDecisions { get; set; }
+    public DbSet<Pagamento> Payments { get; set; }
+    public DbSet<HistoricoStatusSolicitacao> RequestStatusHistories { get; set; }
     
     protected override void OnModelCreating(ModelBuilder builder)
     {

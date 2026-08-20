@@ -21,156 +21,156 @@ public static class ModelBuilderExtensions
         var adminId = Guid.Parse("c95ab38b-5c3e-45a4-a087-c930bea18e06");
         var seedCreatedAtUtc = new DateTime(2026, 8, 11, 0, 0, 0, DateTimeKind.Utc);
 
-        builder.Entity<Department>().HasData(
-            new Department
+        builder.Entity<Departamento>().HasData(
+            new Departamento
             {
                 Id = technologyId,
                 Name = "Tecnologia",
-                CostCenterCode = "TI-100",
-                IsActive = true,
-                CreatedAtUtc = seedCreatedAtUtc
+                CodigoCentroCusto = "TI-100",
+                Ativo = true,
+                CriadaEmUtc = seedCreatedAtUtc
             },
-            new Department
+            new Departamento
             {
                 Id = commercialId,
                 Name = "Comercial",
-                CostCenterCode = "COM-200",
-                IsActive = true,
-                CreatedAtUtc = seedCreatedAtUtc
+                CodigoCentroCusto = "COM-200",
+                Ativo = true,
+                CriadaEmUtc = seedCreatedAtUtc
             },
-            new Department
+            new Departamento
             {
                 Id = financeId,
                 Name = "Financeiro",
-                CostCenterCode = "FIN-300",
-                IsActive = true,
-                CreatedAtUtc = seedCreatedAtUtc
+                CodigoCentroCusto = "FIN-300",
+                Ativo = true,
+                CriadaEmUtc = seedCreatedAtUtc
             });
 
         //maneger tecnologia
-        builder.Entity<User>().HasData(new User
+        builder.Entity<Usuario>().HasData(new Usuario
         {
             Id = carlosManagerId,
-            FullName = "Carlos Lima",
+            NomeCompleto = "Carlos Lima",
             Email = "carlos.lima@empresa.test",
-            RoleEnum = RoleEnum.Manager,
-            DepartmentId = technologyId,
-            PasswordHash = senha,
-            IsActive = true,
-            CreatedAtUtc = seedCreatedAtUtc,
+            PerfilUsuario = PerfilUsuario.Manager,
+            DepartamentoId = technologyId,
+            HashSenha = senha,
+            Ativo = true,
+            CriadaEmUtc = seedCreatedAtUtc,
         });
 
         //maneger comercial
-        builder.Entity<User>().HasData(new User
+        builder.Entity<Usuario>().HasData(new Usuario
         {
             Id = marinaManagerId,
-            FullName = "Marina Costa",
+            NomeCompleto = "Marina Costa",
             Email = "marina.costa@empresa.test",
-            RoleEnum = RoleEnum.Manager,
-            DepartmentId = commercialId,
-            PasswordHash =  senha,
-            IsActive = true,
-            CreatedAtUtc = seedCreatedAtUtc,
+            PerfilUsuario = PerfilUsuario.Manager,
+            DepartamentoId = commercialId,
+            HashSenha =  senha,
+            Ativo = true,
+            CriadaEmUtc = seedCreatedAtUtc,
         });
 
-        builder.Entity<User>().HasData(new User
+        builder.Entity<Usuario>().HasData(new Usuario
         {
             Id = anaId,
-            FullName = "Ana Souza",
+            NomeCompleto = "Ana Souza",
             Email = "ana.souza@empresa.test",
-            RoleEnum = RoleEnum.Employee,
-            DepartmentId = technologyId,
-            ManagerId = carlosManagerId,
-            PasswordHash = senha,
-            IsActive = true,
-            CreatedAtUtc = seedCreatedAtUtc,
+            PerfilUsuario = PerfilUsuario.Employee,
+            DepartamentoId = technologyId,
+            GestorId = carlosManagerId,
+            HashSenha = senha,
+            Ativo = true,
+            CriadaEmUtc = seedCreatedAtUtc,
         });
 
-        builder.Entity<User>().HasData(new User
+        builder.Entity<Usuario>().HasData(new Usuario
         {
             Id = brunoId,
-            FullName = "Bruno Alves",
+            NomeCompleto = "Bruno Alves",
             Email = "bruno.alves@empresa.test",
-            RoleEnum = RoleEnum.Employee,
-            DepartmentId = commercialId,
-            ManagerId = marinaManagerId,
-            PasswordHash = senha,
-            IsActive = true,
-            CreatedAtUtc = seedCreatedAtUtc,
+            PerfilUsuario = PerfilUsuario.Employee,
+            DepartamentoId = commercialId,
+            GestorId = marinaManagerId,
+            HashSenha = senha,
+            Ativo = true,
+            CriadaEmUtc = seedCreatedAtUtc,
         });
 
-        builder.Entity<User>().HasData(new User
+        builder.Entity<Usuario>().HasData(new Usuario
         {
             Id = fernandaId,
-            FullName = "Fernanda Rocha",
+            NomeCompleto = "Fernanda Rocha",
             Email = "fernanda.rocha@empresa.test",
-            RoleEnum = RoleEnum.Finance,
-            DepartmentId = financeId,
-            PasswordHash = senha,
-            IsActive = true,
-            CreatedAtUtc = seedCreatedAtUtc,
+            PerfilUsuario = PerfilUsuario.Finance,
+            DepartamentoId = financeId,
+            HashSenha = senha,
+            Ativo = true,
+            CriadaEmUtc = seedCreatedAtUtc,
         });
 
-        builder.Entity<User>().HasData(new User
+        builder.Entity<Usuario>().HasData(new Usuario
         {
             Id = adminId,
-            FullName = "Admin Sistema",
+            NomeCompleto = "Admin Sistema",
             Email = "admin@empresa.test",
-            RoleEnum = RoleEnum.Admin,
-            DepartmentId = financeId,
-            PasswordHash = senha,
-            IsActive = true,
-            CreatedAtUtc = seedCreatedAtUtc
+            PerfilUsuario = PerfilUsuario.Admin,
+            DepartamentoId = financeId,
+            HashSenha = senha,
+            Ativo = true,
+            CriadaEmUtc = seedCreatedAtUtc
         });
 
-        builder.Entity<ExpenseCategory>().HasData(
-            new ExpenseCategory
+        builder.Entity<CategoriaDespesa>().HasData(
+            new CategoriaDespesa
             {
                 Id = Guid.Parse("1d7d9f1c-cba5-488d-a718-5102401ee001"),
                 Name = "Alimentação",
-                MonthlyLimit = 800m,
-                RequiresReceipt = true,
-                IsActive = true
+                LimiteMensal = 800m,
+                ExigeComprovante = true,
+                Ativo = true
             },
-            new ExpenseCategory
+            new CategoriaDespesa
             {
                 Id = Guid.Parse("413b783c-2030-40a8-8a09-a03ea12cd002"),
                 Name = "Transporte",
-                MonthlyLimit = 600m,
-                RequiresReceipt = true,
-                IsActive = true
+                LimiteMensal = 600m,
+                ExigeComprovante = true,
+                Ativo = true
             },
-            new ExpenseCategory
+            new CategoriaDespesa
             {
                 Id = Guid.Parse("59f8b4b9-e72b-4dbd-955b-cb67e940e003"),
                 Name = "Hospedagem",
-                MonthlyLimit = 3000m,
-                RequiresReceipt = true,
-                IsActive = true
+                LimiteMensal = 3000m,
+                ExigeComprovante = true,
+                Ativo = true
             },
-            new ExpenseCategory
+            new CategoriaDespesa
             {
                 Id = Guid.Parse("f741aa00-84e1-4a02-a5e4-249268fee004"),
                 Name = "Material de escritório",
-                MonthlyLimit = 500m,
-                RequiresReceipt = true,
-                IsActive = true
+                LimiteMensal = 500m,
+                ExigeComprovante = true,
+                Ativo = true
             },
-            new ExpenseCategory
+            new CategoriaDespesa
             {
                 Id = Guid.Parse("a80f04df-615f-4f0c-8efc-44f39543f005"),
                 Name = "Quilometragem",
-                MonthlyLimit = 1000m,
-                RequiresReceipt = false,
-                IsActive = true
+                LimiteMensal = 1000m,
+                ExigeComprovante = false,
+                Ativo = true
             },
-            new ExpenseCategory
+            new CategoriaDespesa
             {
                 Id = Guid.Parse("bff56b5b-29d8-40f4-8e32-f9a4590d3006"),
                 Name = "Outros",
-                MonthlyLimit = 300m,
-                RequiresReceipt = true,
-                IsActive = true
+                LimiteMensal = 300m,
+                ExigeComprovante = true,
+                Ativo = true
             });
     }
 }
