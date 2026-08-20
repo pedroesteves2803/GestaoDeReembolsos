@@ -1,9 +1,9 @@
 namespace GestaodeReembolsos.Dtos.SolicitacaoReembolso;
 
-public class ReimbursementRequestResponseDto(
+public class SolicitacaoReembolsoResponseDto(
     Guid id,
-    string requestNumber)
+    string numeroSolicitacao)
 {
     public Guid Id { get; set; } = id;
-    public string NumeroSolicitacao { get; set; } = requestNumber;
+    public string NumeroSolicitacao { get; set; } = numeroSolicitacao;
 }   

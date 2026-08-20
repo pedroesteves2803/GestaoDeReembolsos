@@ -1,6 +1,6 @@
 using GestaodeReembolsos.Data;
 using GestaodeReembolsos.Dtos;
-using GestaodeReembolsos.Dtos.Authentication;
+using GestaodeReembolsos.Dtos.Autenticacao;
 using GestaodeReembolsos.Dtos.Shared;
 using GestaodeReembolsos.Services;
 using Microsoft.AspNetCore.Mvc;
@@ -11,7 +11,7 @@ namespace GestaodeReembolsos.Controllers;
 [ApiController]
 public class AutenticacaoController : ControllerBase
 {
-    [HttpPost("api/v1/login")]
+    [HttpPost("api/v1/autenticacao/login")]
     public async Task<IActionResult> Login(
         [FromBody] LoginRequestDto dto,
         [FromServices] GestaoDeReembolsoContext context,
@@ -29,7 +29,7 @@ public class AutenticacaoController : ControllerBase
                 "Usuário ou senha inválidos"
             ));
         
-        if(!BCrypt.Net.BCrypt.Verify(dto.Password, usuario.HashSenha))
+        if(!BCrypt.Net.BCrypt.Verify(dto.Senha, usuario.HashSenha))
             return StatusCode(401, new ApiResponseDto<LoginResponseDto>(
                 false,
                 "Usuário ou senha inválidos"

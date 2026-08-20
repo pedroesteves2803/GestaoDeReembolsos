@@ -14,9 +14,9 @@ namespace GestaodeReembolsos.Controllers;
 public class ReimbursementRequestController: ControllerBase
 {
     [Authorize(Roles = "Employee")]
-    [HttpPost("api/v1/reimbursement-requests")]
+    [HttpPost("api/v1/solicitacoes-reembolso")]
     public async Task<IActionResult> Create(
-        [FromBody] ReimbursementRequestDto dto,
+        [FromBody] SolicitacaoReembolsoDto dto,
         [FromServices] GestaoDeReembolsoContext context
         )
     {
@@ -26,7 +26,7 @@ public class ReimbursementRequestController: ControllerBase
             .FirstOrDefaultAsync(x => x.Id == dto.DepartamentoId);
         
         if (departamento == null)
-            return NotFound(new ApiResponseDto<ReimbursementRequestResponseDto>(
+            return NotFound(new ApiResponseDto<SolicitacaoReembolsoResponseDto>(
                 false,
                 "Departamento não encontrado!"
             ));
@@ -35,7 +35,7 @@ public class ReimbursementRequestController: ControllerBase
 
         if (identidadeUsuario == null)
             return Unauthorized(
-                new ApiResponseDto<ReimbursementRequestResponseDto>(
+                new ApiResponseDto<SolicitacaoReembolsoResponseDto>(
                     false,
                     "Token inválido."
                 )
@@ -65,10 +65,10 @@ public class ReimbursementRequestController: ControllerBase
         await context.SaveChangesAsync();
         
         return StatusCode(201,
-            new ApiResponseDto<ReimbursementRequestResponseDto>(
+            new ApiResponseDto<SolicitacaoReembolsoResponseDto>(
                 true,
                 "Solicitação de reembolso criada!",
-                new ReimbursementRequestResponseDto(
+                new SolicitacaoReembolsoResponseDto(
                     solicitacao.Id,
                     solicitacao.NumeroSolicitacao
                 )
@@ -77,15 +77,15 @@ public class ReimbursementRequestController: ControllerBase
     }
 
     [Authorize(Roles = "Employee")]
-    [HttpPost("/api/v1/reimbursement-requests/{idSolicitacao}/items")]
+    [HttpPost("api/v1/solicitacoes-reembolso/{idSolicitacao}/itens")]
     public async Task<ActionResult> AddItem(
         [FromRoute] Guid idSolicitacao,
         [FromServices] GestaoDeReembolsoContext context, 
-        [FromBody] ExpenseItemRequestDto dto
+        [FromBody] ItemDespesaRequestDto dto
         )
     {
         if (idSolicitacao == Guid.Empty)
-            return BadRequest(new ApiResponseDto<ReimbursementRequestResponseDto>(
+            return BadRequest(new ApiResponseDto<SolicitacaoReembolsoResponseDto>(
                     false,
                     "O identificador da solicitação é inválido."
                 )
@@ -105,7 +105,7 @@ public class ReimbursementRequestController: ControllerBase
 
         if (request == null)
             return NotFound(
-                new ApiResponseDto<ReimbursementRequestResponseDto>(
+                new ApiResponseDto<SolicitacaoReembolsoResponseDto>(
                     false,
                     "Esse reembolso informado não existe."
                 )
@@ -113,7 +113,7 @@ public class ReimbursementRequestController: ControllerBase
 
         if (request.Status != StatusSolicitacaoReembolso.Draft)
             return Conflict(
-                new ApiResponseDto<ReimbursementRequestResponseDto>(
+                new ApiResponseDto<SolicitacaoReembolsoResponseDto>(
                     false,
                     "O status do reembolso não permite adicionar mais itens."
                 )
@@ -123,7 +123,7 @@ public class ReimbursementRequestController: ControllerBase
 
         if (dto.DataDespesa > hoje)
             return BadRequest(
-                new ApiResponseDto<ExpenseItemResponseDto>(
+                new ApiResponseDto<ItemDespesaResponseDto>(
                     false,
                     "A data da despesa não pode ser futura."
                 )
@@ -134,7 +134,7 @@ public class ReimbursementRequestController: ControllerBase
 
         if (dto.DataDespesa < dataMinimaPermitida)
             return BadRequest(
-                new ApiResponseDto<ExpenseItemResponseDto>(
+                new ApiResponseDto<ItemDespesaResponseDto>(
                     false,
                     "A data da despesa não pode ser anterior a 90 dias da criação da solicitação."
                 )
@@ -143,7 +143,7 @@ public class ReimbursementRequestController: ControllerBase
         if (request.MesReferencia.Year != dto.DataDespesa.Year ||
             request.MesReferencia.Month != dto.DataDespesa.Month)
             return BadRequest(
-                new ApiResponseDto<ExpenseItemResponseDto>(
+                new ApiResponseDto<ItemDespesaResponseDto>(
                     false,
                     "A data da despesa deve pertencer ao mês de referência."
                 )
@@ -156,7 +156,7 @@ public class ReimbursementRequestController: ControllerBase
 
         if (categoria == null)
             return NotFound(
-                new ApiResponseDto<ReimbursementRequestResponseDto>(
+                new ApiResponseDto<SolicitacaoReembolsoResponseDto>(
                     false,
                     "Categoria não existe"
                 )
@@ -178,23 +178,23 @@ public class ReimbursementRequestController: ControllerBase
         
         await context.SaveChangesAsync();
 
-        return StatusCode(201, new ApiResponseDto<ExpenseItemResponseDto>(
+        return StatusCode(201, new ApiResponseDto<ItemDespesaResponseDto>(
                 true,
                 "Item adicionado!",
-                new ExpenseItemResponseDto(itemDespesa.Id)
+                new ItemDespesaResponseDto(itemDespesa.Id)
             )
         );
     }
 
     [Authorize(Roles = "Employee")]
-    [HttpPost("/api/v1/reimbursement-requests/{idSolicitacao}/submit")]
+    [HttpPost("api/v1/solicitacoes-reembolso/{idSolicitacao}/enviar")]
     public async Task<ActionResult> Submit(
         [FromRoute] Guid idSolicitacao,
         [FromServices] GestaoDeReembolsoContext context
         )
     {
         if (idSolicitacao == Guid.Empty)
-            return BadRequest(new ApiResponseDto<ReimbursementRequestResponseDto>(
+            return BadRequest(new ApiResponseDto<SolicitacaoReembolsoResponseDto>(
                     false,
                     "Id do reembolso inválido"
                 )
@@ -215,7 +215,7 @@ public class ReimbursementRequestController: ControllerBase
 
         if (solicitacao == null)
             return NotFound(
-                new ApiResponseDto<ReimbursementRequestResponseDto>(
+                new ApiResponseDto<SolicitacaoReembolsoResponseDto>(
                     false,
                     "Esse reembolso informado não existe."
                 )
@@ -223,7 +223,7 @@ public class ReimbursementRequestController: ControllerBase
 
         if (solicitacao.Status != StatusSolicitacaoReembolso.Draft)
             return Conflict(
-                new ApiResponseDto<ReimbursementRequestResponseDto>(
+                new ApiResponseDto<SolicitacaoReembolsoResponseDto>(
                     false,
                     "O status do reembolso não permite enviar para aprovação."
                 )
@@ -235,7 +235,7 @@ public class ReimbursementRequestController: ControllerBase
         
         if (!existemItens)
             return Conflict(
-                new ApiResponseDto<ReimbursementRequestResponseDto>(
+                new ApiResponseDto<SolicitacaoReembolsoResponseDto>(
                     false,
                     "Adicione pelo menos um item antes de enviar a solicitação."
                 )
@@ -256,10 +256,10 @@ public class ReimbursementRequestController: ControllerBase
         
         await context.SaveChangesAsync();
 
-        return Ok(new ApiResponseDto<SubmitResponseDto>(
+        return Ok(new ApiResponseDto<EnvioSolicitacaoResponseDto>(
             true,
             "Enviado com sucesso!",
-            new SubmitResponseDto(
+            new EnvioSolicitacaoResponseDto(
                 solicitacao.Id,
                 solicitacao.NumeroSolicitacao,
                 solicitacao.Status,
@@ -269,25 +269,25 @@ public class ReimbursementRequestController: ControllerBase
     }
 
     [Authorize(Roles = "Manager")]
-    [HttpPost("/api/v1/reimbursement-requests/{idSolicitacao}/manager-decision")]
+    [HttpPost("api/v1/solicitacoes-reembolso/{idSolicitacao}/decisao-gestor")]
     public async Task<ActionResult> Decisao(
         [FromRoute] Guid idSolicitacao,
-        [FromBody] DecisionManagerRequestDto reimbursementRequestDto,
+        [FromBody] DecisaoGestorRequestDto dtoDecisao,
         [FromServices] GestaoDeReembolsoContext context
         )
     {
         
         if (idSolicitacao == Guid.Empty)
-            return BadRequest(new ApiResponseDto<ReimbursementRequestResponseDto>(
+            return BadRequest(new ApiResponseDto<SolicitacaoReembolsoResponseDto>(
                     false,
                     "Id do reembolso inválido"
                 )
             );
         
-        if (!Enum.IsDefined(reimbursementRequestDto.Decisao))
+        if (!Enum.IsDefined(dtoDecisao.Decisao))
         {
             return BadRequest(
-                new ApiResponseDto<DecisionManagerResponseDto>(
+                new ApiResponseDto<DecisaoGestorResponseDto>(
                     false,
                     "A decisão informada é inválida."
                 )
@@ -306,7 +306,7 @@ public class ReimbursementRequestController: ControllerBase
         
         if (solicitacao == null)
             return NotFound(
-                new ApiResponseDto<ReimbursementRequestResponseDto>(
+                new ApiResponseDto<SolicitacaoReembolsoResponseDto>(
                     false,
                     "A solicitação de reembolso não foi encontrada."
                 )
@@ -314,7 +314,7 @@ public class ReimbursementRequestController: ControllerBase
         
         if(solicitacao.Status != StatusSolicitacaoReembolso.PendingManagerApproval)
             return Conflict(
-                new ApiResponseDto<ReimbursementRequestResponseDto>(
+                new ApiResponseDto<SolicitacaoReembolsoResponseDto>(
                     false,
                     "A solicitação não está aguardando a aprovação do gestor."
                 )
@@ -327,19 +327,19 @@ public class ReimbursementRequestController: ControllerBase
          
          if(usuario == null)
              return NotFound(
-                 new ApiResponseDto<ReimbursementRequestResponseDto>(
+                 new ApiResponseDto<SolicitacaoReembolsoResponseDto>(
                      false,
                      "Você não é o gestor responsável por esta solicitação."
                  )
              );
 
-         if(reimbursementRequestDto.Decisao == Enums.Decisao.Approved)
+         if(dtoDecisao.Decisao == Enums.Decisao.Approved)
             solicitacao.Status = StatusSolicitacaoReembolso.PendingFinanceValidation;
          
-         if(reimbursementRequestDto.Decisao == Enums.Decisao.Rejected)
+         if(dtoDecisao.Decisao == Enums.Decisao.Rejected)
              solicitacao.Status = StatusSolicitacaoReembolso.RejectedByManager;
 
-         if(reimbursementRequestDto.Decisao == Enums.Decisao.Returned)
+         if(dtoDecisao.Decisao == Enums.Decisao.Returned)
              solicitacao.Status = StatusSolicitacaoReembolso.ReturnedByManager;
          
          solicitacao.DecididaPeloGestorEmUtc = DateTime.UtcNow;
@@ -349,8 +349,8 @@ public class ReimbursementRequestController: ControllerBase
         {
             SolicitacaoReembolsoId = solicitacao.Id,
             DecididaPorUsuarioId = gestorId,
-            Comentario =  reimbursementRequestDto.Comentario,
-            Decisao =  reimbursementRequestDto.Decisao,
+            Comentario = dtoDecisao.Comentario,
+            Decisao = dtoDecisao.Decisao,
             NivelDecisao = NivelDecisao.Manager,
             CriadaEmUtc =  DateTime.UtcNow,
         };
@@ -368,10 +368,10 @@ public class ReimbursementRequestController: ControllerBase
         
         await context.SaveChangesAsync();
         
-        return Ok(new ApiResponseDto<DecisionManagerResponseDto>(
+        return Ok(new ApiResponseDto<DecisaoGestorResponseDto>(
             true,
             "Decisão do gestor registrada com sucesso!",
-            new DecisionManagerResponseDto(
+            new DecisaoGestorResponseDto(
                 solicitacao.Id,
                 solicitacao.NumeroSolicitacao,
                 decisaoAprovacao.Decisao,

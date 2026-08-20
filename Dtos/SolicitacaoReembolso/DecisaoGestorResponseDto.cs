@@ -2,22 +2,22 @@ using GestaodeReembolsos.Enums;
 
 namespace GestaodeReembolsos.Dtos.SolicitacaoReembolso;
 
-public class DecisionManagerResponseDto(
+public class DecisaoGestorResponseDto(
     Guid id,
-    string requestNumber,
-    Decisao decision,
+    string numeroSolicitacao,
+    Decisao decisao,
     StatusSolicitacaoReembolso status,
-    DateTime managerDecisionAtUtc
+    DateTime decididaPeloGestorEmUtc
     )
 {
     public Guid Id { get; set; } = id;
     
-    public string NumeroSolicitacao { get; set; } = requestNumber;
+    public string NumeroSolicitacao { get; set; } = numeroSolicitacao;
 
-    public Decisao Decisao { get; set; } = decision;
+    public Decisao Decisao { get; set; } = decisao;
     
     public StatusSolicitacaoReembolso Status { get; set; } = status;
     
-    public DateTime DecididaPeloGestorEmUtc { get; set; } = managerDecisionAtUtc;
+    public DateTime DecididaPeloGestorEmUtc { get; set; } = decididaPeloGestorEmUtc;
     
 }

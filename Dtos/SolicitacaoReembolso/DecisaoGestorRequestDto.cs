@@ -3,7 +3,7 @@ using GestaodeReembolsos.Enums;
 
 namespace GestaodeReembolsos.Dtos.SolicitacaoReembolso;
 
-public class DecisionManagerRequestDto
+public class DecisaoGestorRequestDto
 {
     [Required(ErrorMessage = "Informe uma decisão.")]
     public Decisao Decisao { get; set; }

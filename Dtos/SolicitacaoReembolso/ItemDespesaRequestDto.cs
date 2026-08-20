@@ -2,7 +2,7 @@ using System.ComponentModel.DataAnnotations;
 using GestaodeReembolsos.Validations;
 
 namespace GestaodeReembolsos.Dtos.SolicitacaoReembolso;
-public class ExpenseItemRequestDto
+public class ItemDespesaRequestDto
 {
     [NotEmptyGuid]
     public Guid CategoriaDespesaId { get; set; }

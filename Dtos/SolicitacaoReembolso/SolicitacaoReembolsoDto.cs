@@ -3,7 +3,7 @@ using GestaodeReembolsos.Validations;
 
 namespace GestaodeReembolsos.Dtos.SolicitacaoReembolso;
 
-public class ReimbursementRequestDto
+public class SolicitacaoReembolsoDto
 {
     [NotEmptyGuid]
     [Required(ErrorMessage = "Informe o departamento")]

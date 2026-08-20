@@ -3,7 +3,7 @@ using GestaodeReembolsos.Validations;
 
 namespace GestaodeReembolsos.Dtos.SolicitacaoReembolso;
 
-public partial class ExpenseItemResponseDto(
+public partial class ItemDespesaResponseDto(
     Guid id
 )
 {

@@ -2,18 +2,18 @@ using GestaodeReembolsos.Enums;
 
 namespace GestaodeReembolsos.Dtos.SolicitacaoReembolso;
 
-public class SubmitResponseDto(
+public class EnvioSolicitacaoResponseDto(
     Guid id,
-    string requestNumber,
+    string numeroSolicitacao,
     StatusSolicitacaoReembolso status,
-    DateTime submittedAtUtc)
+    DateTime enviadaEmUtc)
 {
     public Guid Id { get; set; } = id;
     
-    public string NumeroSolicitacao { get; set; } = requestNumber;
+    public string NumeroSolicitacao { get; set; } = numeroSolicitacao;
     
     public StatusSolicitacaoReembolso Status { get; set; } = status;
     
-    public DateTime EnviadaEmUtc { get; set; } = submittedAtUtc;
+    public DateTime EnviadaEmUtc { get; set; } = enviadaEmUtc;
     
 }

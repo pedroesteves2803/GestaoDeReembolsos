@@ -1,4 +1,4 @@
-namespace GestaodeReembolsos.Dtos.Authentication;
+namespace GestaodeReembolsos.Dtos.Autenticacao;
 
 public class LoginResponseDto
 {
