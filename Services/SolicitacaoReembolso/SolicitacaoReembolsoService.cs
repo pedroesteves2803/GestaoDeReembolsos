@@ -222,14 +222,15 @@ public class SolicitacaoReembolsoService(
                  StatusCodes.Status404NotFound
              );
 
-         if(decisaoGestorRequestDto.Decisao == Enums.Decisao.Aprovada)
-             solicitacaoDeReembolso.Status = StatusSolicitacaoReembolso.PendingFinanceValidation;
-         
-         if(decisaoGestorRequestDto.Decisao == Enums.Decisao.Rejeitada)
-             solicitacaoDeReembolso.Status = StatusSolicitacaoReembolso.RejectedByManager;
-
-         if(decisaoGestorRequestDto.Decisao == Enums.Decisao.Devolvida)
-             solicitacaoDeReembolso.Status = StatusSolicitacaoReembolso.ReturnedByManager;
+         solicitacaoDeReembolso.Status = decisaoGestorRequestDto.Decisao switch
+         {
+             Enums.Decisao.Aprovada => StatusSolicitacaoReembolso.PendingFinanceValidation,
+             Enums.Decisao.Rejeitada => StatusSolicitacaoReembolso.RejectedByManager,
+             Enums.Decisao.Devolvida => StatusSolicitacaoReembolso.ReturnedByManager,
+             _ => throw new ExcecaoRegraNegocio(
+                 "A decisão informada é inválida.",
+                 StatusCodes.Status400BadRequest)
+         };
          
          solicitacaoDeReembolso.DecididaPeloGestorEmUtc = DateTime.UtcNow;
          solicitacaoDeReembolso.AtualizadaEmUtc =  DateTime.UtcNow;

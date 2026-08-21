@@ -2,6 +2,7 @@ using System.Text;
 using GestaodeReembolsos;
 using GestaodeReembolsos.Data;
 using GestaodeReembolsos.Services;
+using GestaodeReembolsos.Services.Financeiro;
 using GestaodeReembolsos.Services.SolicitacaoReembolso;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
@@ -65,6 +66,7 @@ void ConfigureServices(WebApplicationBuilder builder)
     builder.Services.AddDbContext<GestaoDeReembolsoContext>(options => options.UseSqlServer(connectionString));
     builder.Services.AddTransient<ServicoToken>();
     builder.Services.AddScoped<SolicitacaoReembolsoService>();
+    builder.Services.AddScoped<FinanceiroService>();
 }
 
 void ConfigureAuthentication(WebApplicationBuilder builder)
