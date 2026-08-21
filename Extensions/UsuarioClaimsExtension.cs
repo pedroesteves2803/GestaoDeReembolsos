@@ -15,4 +15,14 @@ public static class UserClaimsExtension
             new Claim("departmentId", usuario.DepartamentoId.ToString())
         };
     }
+    
+    public static Guid ObterIdUsuario(this ClaimsPrincipal usuario)
+    {
+        var valorId = usuario.FindFirst(ClaimTypes.NameIdentifier)?.Value;
+
+        if (!Guid.TryParse(valorId, out var usuarioId))
+            throw new UnauthorizedAccessException("Token inválido.");
+
+        return usuarioId;
+    }
 }

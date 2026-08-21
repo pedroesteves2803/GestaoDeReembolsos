@@ -22,6 +22,7 @@ public class GestaoDeReembolsoContext(DbContextOptions<GestaoDeReembolsoContext>
         builder.ApplyConfigurationsFromAssembly(
             typeof(GestaoDeReembolsoContext).Assembly
         );
+
         
         builder.Seed();
         

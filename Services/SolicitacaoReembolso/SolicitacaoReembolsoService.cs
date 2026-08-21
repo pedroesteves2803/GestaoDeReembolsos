@@ -5,13 +5,13 @@ using GestaodeReembolsos.Exceptions;
 using GestaodeReembolsos.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace GestaodeReembolsos.Services;
+namespace GestaodeReembolsos.Services.SolicitacaoReembolso;
 
 public class SolicitacaoReembolsoService(
     GestaoDeReembolsoContext context
     )
 {
-    public async Task<SolicitacaoReembolso> Criar(
+    public async Task<Models.SolicitacaoReembolso> Criar(
         Guid colaboradorId,
         Guid departamentoId,
         DateOnly mesReferencia
@@ -26,8 +26,9 @@ public class SolicitacaoReembolsoService(
                 StatusCodes.Status404NotFound
             );
         
-        var solicitacao = new SolicitacaoReembolso
+        var solicitacao = new Models.SolicitacaoReembolso
         {
+            Id = Guid.NewGuid(),
             ColaboradorId = colaboradorId,
             DepartamentoId = departamentoId,
             MesReferencia = mesReferencia,
@@ -131,7 +132,7 @@ public class SolicitacaoReembolsoService(
          return itemDespesa;
     }
 
-    public async Task<SolicitacaoReembolso> Enviar(
+    public async Task<Models.SolicitacaoReembolso> Enviar(
         Guid idSolicitacaoReembolso,
         Guid colaboradorId
     )
@@ -183,7 +184,7 @@ public class SolicitacaoReembolsoService(
         return solicitacaoReembolso;
     }
 
-    public async Task<DecisaoAprovacao> Decisao(
+    public async Task<ResultadoDecisaoGestor> Decisao(
         Guid idSolicitacaoReembolso,
         Guid gestorId,
         DecisaoGestorRequestDto decisaoGestorRequestDto)
@@ -256,9 +257,6 @@ public class SolicitacaoReembolsoService(
         
         await context.SaveChangesAsync();
         
-        return
-        {
-            
-        };
+        return new ResultadoDecisaoGestor(solicitacaoDeReembolso, decisaoAprovacao);
     }
 }

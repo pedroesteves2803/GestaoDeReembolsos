@@ -2,7 +2,7 @@ using GestaodeReembolsos.Models;
 
 namespace GestaodeReembolsos.Repositories.Abstract;
 
-public interface ISolicitacaoReembolsoRepository
+public interface IDepartamentoRepository
 {
-    Task<Departamento?>  ObterPorId(int id);
+    Task<Departamento?> ObterPorId(Guid id);
 }

@@ -1,6 +1,6 @@
 using GestaodeReembolsos.Models;
 
-namespace GestaodeReembolsos.Repositories;
+namespace GestaodeReembolsos.Repositories.Abstract;
 
 public interface IHistoricosStatusSolicitacaoRepository
 {

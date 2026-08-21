@@ -1,6 +1,8 @@
-namespace GestaodeReembolsos.Services;
+using GestaodeReembolsos.Models;
 
-public class ResultadoDecisaoGestor
-{
-    
-}
+namespace GestaodeReembolsos.Services.SolicitacaoReembolso;
+
+public record ResultadoDecisaoGestor(
+    Models.SolicitacaoReembolso Solicitacao,
+    DecisaoAprovacao Decisao
+);
