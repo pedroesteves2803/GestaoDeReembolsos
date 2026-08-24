@@ -4,6 +4,7 @@ using GestaodeReembolsos.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
 using Microsoft.EntityFrameworkCore.Metadata;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 
 #nullable disable
@@ -11,9 +12,11 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace GestaodeReembolsos.Migrations
 {
     [DbContext(typeof(GestaoDeReembolsoContext))]
-    partial class GestaoDeReembolsoContextModelSnapshot : ModelSnapshot
+    [Migration("20260824155200_RenomearColunasParaPortugues")]
+    partial class RenomearColunasParaPortugues
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder

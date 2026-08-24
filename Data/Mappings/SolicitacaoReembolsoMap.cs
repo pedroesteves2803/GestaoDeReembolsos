@@ -61,23 +61,23 @@ public class SolicitacaoReembolsoMap : IEntityTypeConfiguration<SolicitacaoReemb
             .HasColumnName("AtualizadaEmUtc")
             .HasColumnType("datetime2");
 
-        builder.Property(x => x.Version)
-            .HasColumnName("Version")
+        builder.Property(x => x.Versao)
+            .HasColumnName("Versao")
             .IsRowVersion();
         
         builder
-            .HasOne(x => x.Employee)
-            .WithMany(x => x.Requests)
+            .HasOne(x => x.Colaborador)
+            .WithMany(x => x.SolicitacoesReembolso)
             .HasForeignKey(x => x.ColaboradorId)
             .OnDelete(DeleteBehavior.Restrict);
         
         builder
             .HasOne(x => x.Departamento)
-            .WithMany(x => x.Requests)
+            .WithMany(x => x.SolicitacoesReembolso)
             .HasForeignKey(x => x.DepartamentoId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasIndex(x => x.NumeroSolicitacao, "IX_ReimbursementRequest_RequestNumber")
+        builder.HasIndex(x => x.NumeroSolicitacao, "IX_SolicitacaoReembolso_NumeroSolicitacao")
             .IsUnique();
     }
 }

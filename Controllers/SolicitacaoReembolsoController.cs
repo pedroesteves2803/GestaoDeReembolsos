@@ -97,7 +97,7 @@ public class SolicitacaoReembolsoController(
             
             return StatusCode(201, new ApiResponseDto<ItemDespesaResponseDto>(
                     true,
-                    "Item adicionado!",
+                    "Item de despesa adicionado com sucesso.",
                     new ItemDespesaResponseDto(itemDespesa.Id)
                 )
             );
@@ -131,7 +131,7 @@ public class SolicitacaoReembolsoController(
         if (idSolicitacao == Guid.Empty)
             return BadRequest(new ApiResponseDto<SolicitacaoReembolsoResponseDto>(
                     false,
-                    "Id do reembolso inválido"
+                    "O identificador da solicitação é inválido."
                 )
             );
         
@@ -147,7 +147,7 @@ public class SolicitacaoReembolsoController(
             
             return Ok(new ApiResponseDto<EnvioSolicitacaoResponseDto>(
                 true,
-                "Enviado com sucesso!",
+                "Solicitação enviada para aprovação do gestor com sucesso.",
                 new EnvioSolicitacaoResponseDto(
                     solicitacaoReembolso.Id,
                     solicitacaoReembolso.NumeroSolicitacao,
@@ -184,7 +184,7 @@ public class SolicitacaoReembolsoController(
         if (idSolicitacao == Guid.Empty)
             return BadRequest(new ApiResponseDto<SolicitacaoReembolsoResponseDto>(
                     false,
-                    "Id do reembolso inválido"
+                    "O identificador da solicitação é inválido."
                 )
             );
         

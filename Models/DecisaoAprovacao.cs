@@ -12,7 +12,7 @@ public class DecisaoAprovacao
 
     public Guid DecididaPorUsuarioId { get; set; }
 
-    public Usuario DecidedByUser { get; set; } = null!;
+    public Usuario DecididaPorUsuario { get; set; } = null!;
 
     public NivelDecisao NivelDecisao { get; set; }
 

@@ -9,6 +9,6 @@ public class SolicitacaoReembolsoDto
     [Required(ErrorMessage = "Informe o departamento")]
     public Guid DepartamentoId { get; set; }
 
-    [Required(ErrorMessage = "Informe o mes de referencia")]
+    [Required(ErrorMessage = "Informe o mês de referência.")]
     public DateOnly MesReferencia { get; set; }
 }

@@ -16,9 +16,9 @@ public class HistoricoStatusSolicitacao
 
     public Guid AlteradoPorUsuarioId { get; set; }
 
-    public Usuario ChangedByUser { get; set; } = null!;
+    public Usuario AlteradoPorUsuario { get; set; } = null!;
 
-    public string? Reason { get; set; }
+    public string? Motivo { get; set; }
 
     public DateTime CriadaEmUtc { get; set; }
 }

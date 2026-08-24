@@ -10,7 +10,7 @@ public class SolicitacaoReembolso
 
     public Guid ColaboradorId { get; set; }
 
-    public Usuario Employee { get; set; } = null!;
+    public Usuario Colaborador { get; set; } = null!;
     
     public Guid DepartamentoId { get; set; }
 
@@ -42,5 +42,5 @@ public class SolicitacaoReembolso
     
     public Pagamento? Pagamento { get; set; } = null!;
     
-    public byte[] Version { get; set; }  = [];
+    public byte[] Versao { get; set; }  = [];
 }

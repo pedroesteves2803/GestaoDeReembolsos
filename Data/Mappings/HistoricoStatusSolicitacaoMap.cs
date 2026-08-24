@@ -23,8 +23,8 @@ public class HistoricoStatusSolicitacaoMap : IEntityTypeConfiguration<HistoricoS
             .HasConversion<string>()
             .IsRequired();
 
-        builder.Property(x => x.Reason)
-            .HasColumnName("Reason")
+        builder.Property(x => x.Motivo)
+            .HasColumnName("Motivo")
             .HasMaxLength(500);
         
         builder.Property(x => x.CriadaEmUtc)
@@ -40,7 +40,7 @@ public class HistoricoStatusSolicitacaoMap : IEntityTypeConfiguration<HistoricoS
             .OnDelete(DeleteBehavior.Restrict);
         
         builder
-            .HasOne(x => x.ChangedByUser)
+            .HasOne(x => x.AlteradoPorUsuario)
             .WithMany(x => x.HistoricosStatusSolicitacao)
             .HasForeignKey(x => x.AlteradoPorUsuarioId)
             .OnDelete(DeleteBehavior.Restrict);

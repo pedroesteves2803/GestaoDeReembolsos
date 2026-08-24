@@ -30,7 +30,7 @@ public class UsuarioMap : IEntityTypeConfiguration<Usuario>
             .IsRequired();
         
         builder.Property(x => x.PerfilUsuario)
-            .HasColumnName("Role")
+            .HasColumnName("PerfilUsuario")
             .HasConversion<string>()
             .HasMaxLength(20)
             .IsRequired();
@@ -52,7 +52,7 @@ public class UsuarioMap : IEntityTypeConfiguration<Usuario>
             .HasColumnType("datetime2");
         
         builder
-            .HasOne(x => x.Manager)
+            .HasOne(x => x.Gestor)
             .WithMany(x => x.Subordinados)
             .HasForeignKey(x => x.GestorId)
             .OnDelete(DeleteBehavior.Restrict);
@@ -64,7 +64,7 @@ public class UsuarioMap : IEntityTypeConfiguration<Usuario>
             .OnDelete(DeleteBehavior.Restrict);
         
         builder
-            .HasIndex(x => x.Email, "IX_User_Email")
+            .HasIndex(x => x.Email, "IX_Usuario_Email")
             .IsUnique();    
     }
 }

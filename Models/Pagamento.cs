@@ -10,13 +10,13 @@ public class Pagamento
 
     public string ReferenciaPagamento { get; set; } = string.Empty;
 
-    public decimal PaidAmount { get; set; }
+    public decimal ValorPago { get; set; }
 
-    public DateOnly PaymentDate { get; set; }
+    public DateOnly DataPagamento { get; set; }
 
     public Guid ProcessadoPorUsuarioId { get; set; }
 
-    public Usuario ProcessedByUser { get; set; } = null!;
+    public Usuario ProcessadoPorUsuario { get; set; } = null!;
 
     public string? Observacoes { get; set; }
 

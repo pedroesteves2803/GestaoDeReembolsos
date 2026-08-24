@@ -19,13 +19,28 @@ public class FinanceiroService(
         var solicitacoesReembolso = await context
             .SolicitacoesReembolso
             .Where(x => x.Id == idSolicitacaoReembolso)
-            .Where(x => x.Status == StatusSolicitacaoReembolso.PendingFinanceValidation)
             .FirstOrDefaultAsync();
         
         if(solicitacoesReembolso == null)
             throw new ExcecaoRegraNegocio(
-                "Esse reembolso informado não existe.",
+                "A solicitação de reembolso não foi encontrada.",
                 StatusCodes.Status404NotFound
+            );
+        
+        if (solicitacoesReembolso.Status != StatusSolicitacaoReembolso.AguardandoValidacaoFinanceira)
+            throw new ExcecaoRegraNegocio(
+                "A solicitação não está aguardando validação financeira.",
+                StatusCodes.Status409Conflict
+            );
+        
+        if (
+            decisaoFinanceiraRequestDto.Decisao != Enums.Decisao.Aprovada &&
+            (string.IsNullOrWhiteSpace(decisaoFinanceiraRequestDto.Comentario) ||
+             decisaoFinanceiraRequestDto.Comentario.Trim().Length < 10 ||
+             decisaoFinanceiraRequestDto.Comentario.Trim().Length > 500))
+            throw new ExcecaoRegraNegocio(
+    "Para rejeitar ou devolver a solicitação, informe um comentário entre 10 e 500 caracteres.",
+    StatusCodes.Status400BadRequest
             );
         
         var decisaoFinanceira = new DecisaoAprovacao
@@ -40,9 +55,9 @@ public class FinanceiroService(
         
         solicitacoesReembolso.Status = decisaoFinanceiraRequestDto.Decisao switch
         {
-            Enums.Decisao.Aprovada => StatusSolicitacaoReembolso.ApprovedForPayment,
-            Enums.Decisao.Rejeitada => StatusSolicitacaoReembolso.RejectedByFinance,
-            Enums.Decisao.Devolvida => StatusSolicitacaoReembolso.ReturnedByFinance,
+            Enums.Decisao.Aprovada => StatusSolicitacaoReembolso.AprovadaParaPagamento,
+            Enums.Decisao.Rejeitada => StatusSolicitacaoReembolso.RejeitadaPeloFinanceiro,
+            Enums.Decisao.Devolvida => StatusSolicitacaoReembolso.DevolvidaPeloFinanceiro,
             _ => throw new ExcecaoRegraNegocio(
                 "A decisão informada é inválida.",
                 StatusCodes.Status400BadRequest)
@@ -56,13 +71,89 @@ public class FinanceiroService(
         context.HistoricosStatusSolicitacao.Add(new HistoricoStatusSolicitacao
         {
             SolicitacaoReembolsoId = solicitacoesReembolso.Id,
-            StatusAnterior = StatusSolicitacaoReembolso.PendingFinanceValidation,
+            StatusAnterior = StatusSolicitacaoReembolso.AguardandoValidacaoFinanceira,
             NovoStatus = solicitacoesReembolso.Status,
-            AlteradoPorUsuarioId = idColaborador
+            AlteradoPorUsuarioId = idColaborador,
+            Motivo = decisaoFinanceiraRequestDto.Comentario
         });
         
         await context.SaveChangesAsync();
         
         return decisaoFinanceira;
+    }
+
+    public async Task<Pagamento> Pagamento(
+        Guid idSolicitacaoReembolso,
+        Guid idColaborador,
+        RegistrarPagamentoRequestDto registrarPagamentoRequestDto)
+    {
+        var solicitacoesReembolso = await context
+            .SolicitacoesReembolso
+            .Where(x => x.Id == idSolicitacaoReembolso)
+            .FirstOrDefaultAsync();
+        
+        if(solicitacoesReembolso == null)
+            throw new ExcecaoRegraNegocio(
+                "A solicitação de reembolso não foi encontrada.",
+                StatusCodes.Status404NotFound
+            );
+
+        if (solicitacoesReembolso.Status != StatusSolicitacaoReembolso.AprovadaParaPagamento)
+            throw new ExcecaoRegraNegocio(
+                "A solicitação não está aprovada para pagamento.",              StatusCodes.Status409Conflict
+            );
+        
+        if (registrarPagamentoRequestDto.ValorPago != solicitacoesReembolso.ValorTotal)
+            throw new ExcecaoRegraNegocio(
+                "O valor pago deve ser igual ao valor total da solicitação.",
+                StatusCodes.Status400BadRequest
+            );
+        
+        var referenciaExiste = await context.Pagamentos
+            .AnyAsync(x => x.ReferenciaPagamento == registrarPagamentoRequestDto.Referencia);
+
+        if (referenciaExiste)
+            throw new ExcecaoRegraNegocio(
+                "Já existe um pagamento com esta referência.",
+                StatusCodes.Status409Conflict
+            );
+
+        var hoje = DateOnly.FromDateTime(DateTime.UtcNow);
+
+        if (registrarPagamentoRequestDto.DataPagamento > hoje)
+            throw new ExcecaoRegraNegocio(
+                "A data do pagamento não pode ser futura.",
+                StatusCodes.Status400BadRequest
+            );
+
+        var pagamento = new Pagamento
+        {
+            SolicitacaoReembolsoId = solicitacoesReembolso.Id,
+            ReferenciaPagamento = registrarPagamentoRequestDto.Referencia,
+            ValorPago =  registrarPagamentoRequestDto.ValorPago,
+            DataPagamento = registrarPagamentoRequestDto.DataPagamento,
+            ProcessadoPorUsuarioId = idColaborador,
+            Observacoes = registrarPagamentoRequestDto.Observacao,
+            CriadaEmUtc = DateTime.UtcNow
+        };
+
+        await context.Pagamentos.AddAsync(pagamento);
+
+        solicitacoesReembolso.Status = StatusSolicitacaoReembolso.Paga;
+        solicitacoesReembolso.PagaEmUtc = DateTime.UtcNow;
+        solicitacoesReembolso.AtualizadaEmUtc = DateTime.UtcNow;
+        
+        context.HistoricosStatusSolicitacao.Add(new HistoricoStatusSolicitacao
+        {
+            SolicitacaoReembolsoId = solicitacoesReembolso.Id,
+            StatusAnterior = StatusSolicitacaoReembolso.AprovadaParaPagamento,
+            NovoStatus = solicitacoesReembolso.Status,
+            AlteradoPorUsuarioId = idColaborador,
+            Motivo = registrarPagamentoRequestDto.Observacao
+        });
+
+        await context.SaveChangesAsync();
+
+        return pagamento;
     }
 }

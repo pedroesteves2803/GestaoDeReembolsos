@@ -17,13 +17,24 @@ public class SolicitacaoReembolsoService(
         DateOnly mesReferencia
         )
     {
-        var departamentoExiste = await context.Departamentos
+        var departamento = await context.Departamentos
             .AnyAsync(x => x.Id == departamentoId);
 
-        if (!departamentoExiste)
+        if (!departamento)
             throw new ExcecaoRegraNegocio(
                 "Departamento não encontrado.",
                 StatusCodes.Status404NotFound
+            );
+        
+        var usuario = await context.Usuarios
+            .Where(x => x.Id == colaboradorId)
+            .Where(x => x.DepartamentoId == departamentoId)
+            .FirstOrDefaultAsync();
+
+        if (usuario == null)
+            throw new ExcecaoRegraNegocio(
+                "O departamento informado não é compatível com o usuário autenticado.",
+                StatusCodes.Status409Conflict
             );
         
         var solicitacao = new Models.SolicitacaoReembolso
@@ -66,11 +77,14 @@ public class SolicitacaoReembolsoService(
 
          if (solicitacaoReembolso == null)
              throw new ExcecaoRegraNegocio(
-                 "Esse reembolso informado não existe.",
+                 "A solicitação de reembolso não foi encontrada.",
                  StatusCodes.Status404NotFound
              );
 
-         if (solicitacaoReembolso.Status != StatusSolicitacaoReembolso.Rascunho)
+         if (
+             solicitacaoReembolso.Status != StatusSolicitacaoReembolso.Rascunho &&
+             solicitacaoReembolso.Status != StatusSolicitacaoReembolso.DevolvidaPeloGestor &&
+             solicitacaoReembolso.Status != StatusSolicitacaoReembolso.DevolvidaPeloFinanceiro)
              throw new ExcecaoRegraNegocio(
                  "O status do reembolso não permite adicionar mais itens.",
                  StatusCodes.Status409Conflict
@@ -109,7 +123,7 @@ public class SolicitacaoReembolsoService(
 
          if (categoria == null)
              throw new ExcecaoRegraNegocio(
-                 "Categoria não existe",
+                 "A categoria de despesa não foi encontrada.",
                  StatusCodes.Status404NotFound
              );
          
@@ -145,11 +159,14 @@ public class SolicitacaoReembolsoService(
 
         if (solicitacaoReembolso == null)
             throw new ExcecaoRegraNegocio(
-                "Esse reembolso informado não existe.",
+                "A solicitação de reembolso não foi encontrada.",
                 StatusCodes.Status404NotFound
             );
 
-        if (solicitacaoReembolso.Status != StatusSolicitacaoReembolso.Rascunho)
+        if (
+            solicitacaoReembolso.Status != StatusSolicitacaoReembolso.Rascunho &&
+            solicitacaoReembolso.Status != StatusSolicitacaoReembolso.DevolvidaPeloGestor &&
+            solicitacaoReembolso.Status != StatusSolicitacaoReembolso.DevolvidaPeloFinanceiro)
             throw new ExcecaoRegraNegocio(
                 "O status do reembolso não permite enviar para aprovação.",
                 StatusCodes.Status409Conflict
@@ -165,17 +182,18 @@ public class SolicitacaoReembolsoService(
                 StatusCodes.Status409Conflict
             );
         
+        var statusAnterior = solicitacaoReembolso.Status;
         solicitacaoReembolso.Status = StatusSolicitacaoReembolso.AguardandoAprovacaoGestor;
         solicitacaoReembolso.EnviadaEmUtc = DateTime.UtcNow;
         solicitacaoReembolso.AtualizadaEmUtc = DateTime.UtcNow;
-        
+
         var historico = new HistoricoStatusSolicitacao
         {
             SolicitacaoReembolsoId = solicitacaoReembolso.Id,
-            StatusAnterior = StatusSolicitacaoReembolso.Rascunho,
+            StatusAnterior = statusAnterior,
             NovoStatus = StatusSolicitacaoReembolso.AguardandoAprovacaoGestor,
             AlteradoPorUsuarioId = solicitacaoReembolso.ColaboradorId,
-            Reason = null,
+            Motivo = null,
         };
 
         await context.HistoricosStatusSolicitacao.AddAsync(historico);
@@ -210,6 +228,16 @@ public class SolicitacaoReembolsoService(
                 "A solicitação não está aguardando a aprovação do gestor.",
                 StatusCodes.Status409Conflict
             );
+        
+        if (
+            decisaoGestorRequestDto.Decisao != Enums.Decisao.Aprovada &&
+            (string.IsNullOrWhiteSpace(decisaoGestorRequestDto.Comentario) ||
+             decisaoGestorRequestDto.Comentario.Trim().Length < 10 ||
+             decisaoGestorRequestDto.Comentario.Trim().Length > 500))
+            throw new ExcecaoRegraNegocio(
+                "Para rejeitar ou devolver a solicitação, informe um comentário entre 10 e 500 caracteres.",
+                StatusCodes.Status400BadRequest
+            );
 
         var gestor = await context.Usuarios
             .Where(x => x.Id == solicitacaoDeReembolso.ColaboradorId)
@@ -224,9 +252,9 @@ public class SolicitacaoReembolsoService(
 
          solicitacaoDeReembolso.Status = decisaoGestorRequestDto.Decisao switch
          {
-             Enums.Decisao.Aprovada => StatusSolicitacaoReembolso.PendingFinanceValidation,
-             Enums.Decisao.Rejeitada => StatusSolicitacaoReembolso.RejectedByManager,
-             Enums.Decisao.Devolvida => StatusSolicitacaoReembolso.ReturnedByManager,
+             Enums.Decisao.Aprovada => StatusSolicitacaoReembolso.AguardandoValidacaoFinanceira,
+             Enums.Decisao.Rejeitada => StatusSolicitacaoReembolso.RejeitadaPeloGestor,
+             Enums.Decisao.Devolvida => StatusSolicitacaoReembolso.DevolvidaPeloGestor,
              _ => throw new ExcecaoRegraNegocio(
                  "A decisão informada é inválida.",
                  StatusCodes.Status400BadRequest)
@@ -253,7 +281,7 @@ public class SolicitacaoReembolsoService(
             StatusAnterior = StatusSolicitacaoReembolso.AguardandoAprovacaoGestor,
             NovoStatus = solicitacaoDeReembolso.Status,
             AlteradoPorUsuarioId = gestorId,
-            Reason = null,
+            Motivo = decisaoGestorRequestDto.Comentario
         });
         
         await context.SaveChangesAsync();

@@ -15,8 +15,8 @@ public class CategoriaDespesaMap: IEntityTypeConfiguration<CategoriaDespesa>
             .HasColumnName("Id")
             .ValueGeneratedOnAdd();
         
-        builder.Property(x => x.Name)
-            .HasColumnName("Name")
+        builder.Property(x => x.Nome)
+            .HasColumnName("Nome")
             .HasMaxLength(80)
             .IsRequired();
         
@@ -35,7 +35,7 @@ public class CategoriaDespesaMap: IEntityTypeConfiguration<CategoriaDespesa>
             .HasDefaultValue(true);
         
         builder
-            .HasIndex(x => x.Name, "IX_ExpenseCategory_Name")
+            .HasIndex(x => x.Nome, "IX_CategoriaDespesa_Nome")
             .IsUnique();   
     }
 }

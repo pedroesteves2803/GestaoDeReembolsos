@@ -4,7 +4,7 @@ public class Departamento
 {
     public Guid Id { get; set; } =  Guid.NewGuid();
 
-    public string Name { get; set; } = string.Empty;
+    public string Nome { get; set; } = string.Empty;
 
     public string CodigoCentroCusto { get; set; } = string.Empty;
 
@@ -14,6 +14,6 @@ public class Departamento
 
     public ICollection<Usuario> Usuarios { get; set; } = new List<Usuario>();
     
-    public ICollection<SolicitacaoReembolso> Requests { get; set; } = new List<SolicitacaoReembolso>();
+    public ICollection<SolicitacaoReembolso> SolicitacoesReembolso { get; set; } = new List<SolicitacaoReembolso>();
     
 }

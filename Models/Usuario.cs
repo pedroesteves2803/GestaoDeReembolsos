@@ -20,7 +20,7 @@ public class Usuario
     
     public Guid? GestorId { get; set; }
 
-    public Usuario? Manager { get; set; }
+    public Usuario? Gestor { get; set; }
     
     public bool Ativo { get; set; } = true;
 
@@ -30,7 +30,7 @@ public class Usuario
 
     public ICollection<Usuario> Subordinados { get; set; } = new List<Usuario>();
 
-    public ICollection<SolicitacaoReembolso> Requests { get; set; } = new  List<SolicitacaoReembolso>();
+    public ICollection<SolicitacaoReembolso> SolicitacoesReembolso { get; set; } = new List<SolicitacaoReembolso>();
     
     public ICollection<DecisaoAprovacao> DecisoesAprovacao { get; set; } = new List<DecisaoAprovacao>();
     public ICollection<HistoricoStatusSolicitacao> HistoricosStatusSolicitacao { get; set; } = new List<HistoricoStatusSolicitacao>();

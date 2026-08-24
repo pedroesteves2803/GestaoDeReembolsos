@@ -4,7 +4,7 @@ public class CategoriaDespesa
 {
     public Guid Id { get; set; }  = Guid.NewGuid();
 
-    public string Name { get; set; } = string.Empty;
+    public string Nome { get; set; } = string.Empty;
 
     public Decimal? LimiteMensal { get; set; }
 

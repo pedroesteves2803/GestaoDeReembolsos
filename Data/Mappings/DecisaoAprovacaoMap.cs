@@ -39,7 +39,7 @@ public class DecisaoAprovacaoMap : IEntityTypeConfiguration<DecisaoAprovacao>
             .HasForeignKey(x => x.SolicitacaoReembolsoId)
             .OnDelete(DeleteBehavior.Restrict);
         
-        builder.HasOne(x => x.DecidedByUser)
+        builder.HasOne(x => x.DecididaPorUsuario)
             .WithMany(x => x.DecisoesAprovacao)
             .HasForeignKey(x => x.DecididaPorUsuarioId)
             .OnDelete(DeleteBehavior.Restrict);

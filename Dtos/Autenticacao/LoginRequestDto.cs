@@ -4,8 +4,8 @@ namespace GestaodeReembolsos.Dtos.Autenticacao;
 
 public class LoginRequestDto
 {
-    [Required(ErrorMessage = "o E-mail é obrigatorio")]
-    [EmailAddress(ErrorMessage ="o E-mail é invalido!")]
+    [Required(ErrorMessage = "O e-mail é obrigatório.")]
+    [EmailAddress(ErrorMessage ="O e-mail é inválido.")]
     public string Email { get; set; } = string.Empty;
 
     [Required(ErrorMessage = "Informe a senha")]

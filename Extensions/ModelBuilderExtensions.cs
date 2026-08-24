@@ -25,7 +25,7 @@ public static class ModelBuilderExtensions
             new Departamento
             {
                 Id = technologyId,
-                Name = "Tecnologia",
+                Nome = "Tecnologia",
                 CodigoCentroCusto = "TI-100",
                 Ativo = true,
                 CriadaEmUtc = seedCreatedAtUtc
@@ -33,7 +33,7 @@ public static class ModelBuilderExtensions
             new Departamento
             {
                 Id = commercialId,
-                Name = "Comercial",
+                Nome = "Comercial",
                 CodigoCentroCusto = "COM-200",
                 Ativo = true,
                 CriadaEmUtc = seedCreatedAtUtc
@@ -41,7 +41,7 @@ public static class ModelBuilderExtensions
             new Departamento
             {
                 Id = financeId,
-                Name = "Financeiro",
+                Nome = "Financeiro",
                 CodigoCentroCusto = "FIN-300",
                 Ativo = true,
                 CriadaEmUtc = seedCreatedAtUtc
@@ -127,7 +127,7 @@ public static class ModelBuilderExtensions
             new CategoriaDespesa
             {
                 Id = Guid.Parse("1d7d9f1c-cba5-488d-a718-5102401ee001"),
-                Name = "Alimentação",
+                Nome = "Alimentação",
                 LimiteMensal = 800m,
                 ExigeComprovante = true,
                 Ativo = true
@@ -135,7 +135,7 @@ public static class ModelBuilderExtensions
             new CategoriaDespesa
             {
                 Id = Guid.Parse("413b783c-2030-40a8-8a09-a03ea12cd002"),
-                Name = "Transporte",
+                Nome = "Transporte",
                 LimiteMensal = 600m,
                 ExigeComprovante = true,
                 Ativo = true
@@ -143,7 +143,7 @@ public static class ModelBuilderExtensions
             new CategoriaDespesa
             {
                 Id = Guid.Parse("59f8b4b9-e72b-4dbd-955b-cb67e940e003"),
-                Name = "Hospedagem",
+                Nome = "Hospedagem",
                 LimiteMensal = 3000m,
                 ExigeComprovante = true,
                 Ativo = true
@@ -151,7 +151,7 @@ public static class ModelBuilderExtensions
             new CategoriaDespesa
             {
                 Id = Guid.Parse("f741aa00-84e1-4a02-a5e4-249268fee004"),
-                Name = "Material de escritório",
+                Nome = "Material de escritório",
                 LimiteMensal = 500m,
                 ExigeComprovante = true,
                 Ativo = true
@@ -159,7 +159,7 @@ public static class ModelBuilderExtensions
             new CategoriaDespesa
             {
                 Id = Guid.Parse("a80f04df-615f-4f0c-8efc-44f39543f005"),
-                Name = "Quilometragem",
+                Nome = "Quilometragem",
                 LimiteMensal = 1000m,
                 ExigeComprovante = false,
                 Ativo = true
@@ -167,7 +167,7 @@ public static class ModelBuilderExtensions
             new CategoriaDespesa
             {
                 Id = Guid.Parse("bff56b5b-29d8-40f4-8e32-f9a4590d3006"),
-                Name = "Outros",
+                Nome = "Outros",
                 LimiteMensal = 300m,
                 ExigeComprovante = true,
                 Ativo = true

@@ -19,13 +19,13 @@ public class PagamentoMap : IEntityTypeConfiguration<Pagamento>
             .HasMaxLength(100)
             .IsRequired();
         
-        builder.Property(x => x.PaidAmount)
-            .HasColumnName("PaidAmount")
+        builder.Property(x => x.ValorPago)
+            .HasColumnName("ValorPago")
             .HasColumnType("decimal(12,2)")
             .IsRequired();
         
-        builder.Property(x => x.PaymentDate)
-            .HasColumnName("PaymentDate")
+        builder.Property(x => x.DataPagamento)
+            .HasColumnName("DataPagamento")
             .HasColumnType("date")
             .IsRequired();
 
@@ -44,7 +44,7 @@ public class PagamentoMap : IEntityTypeConfiguration<Pagamento>
             .HasForeignKey<Pagamento>(x => x.SolicitacaoReembolsoId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.HasOne(x => x.ProcessedByUser)
+        builder.HasOne(x => x.ProcessadoPorUsuario)
             .WithMany(x => x.Pagamentos)
             .HasForeignKey(x => x.ProcessadoPorUsuarioId)
             .OnDelete(DeleteBehavior.Restrict);

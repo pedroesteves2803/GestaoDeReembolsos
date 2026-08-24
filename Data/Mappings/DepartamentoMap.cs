@@ -15,8 +15,8 @@ public class DepartamentoMap: IEntityTypeConfiguration<Departamento>
             .HasColumnName("Id")
             .ValueGeneratedOnAdd();
         
-        builder.Property(x => x.Name)
-            .HasColumnName("Name")
+        builder.Property(x => x.Nome)
+            .HasColumnName("Nome")
             .HasMaxLength(100)
             .IsRequired();
         
@@ -37,11 +37,11 @@ public class DepartamentoMap: IEntityTypeConfiguration<Departamento>
             .IsRequired();
         
         builder
-            .HasIndex(x => x.Name, "IX_Department_Name")
+            .HasIndex(x => x.Nome, "IX_Departamento_Nome")
             .IsUnique();    
         
         builder
-            .HasIndex(x => x.CodigoCentroCusto, "IX_Department_CostCenterCode")
+            .HasIndex(x => x.CodigoCentroCusto, "IX_Departamento_CodigoCentroCusto")
             .IsUnique();    
     }
 }
