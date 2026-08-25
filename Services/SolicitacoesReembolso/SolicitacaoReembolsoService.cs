@@ -5,17 +5,17 @@ using GestaodeReembolsos.Exceptions;
 using GestaodeReembolsos.Models;
 using Microsoft.EntityFrameworkCore;
 
-namespace GestaodeReembolsos.Services.SolicitacaoReembolso;
+namespace GestaodeReembolsos.Services.SolicitacoesReembolso;
 
 public class SolicitacaoReembolsoService(
     GestaoDeReembolsoContext context
-    )
+)
 {
-    public async Task<Models.SolicitacaoReembolso> Criar(
+    public async Task<SolicitacaoReembolso> Criar(
         Guid colaboradorId,
         Guid departamentoId,
         DateOnly mesReferencia
-        )
+    )
     {
         var departamento = await context.Departamentos
             .AnyAsync(x => x.Id == departamentoId);
@@ -25,7 +25,7 @@ public class SolicitacaoReembolsoService(
                 "Departamento não encontrado.",
                 StatusCodes.Status404NotFound
             );
-        
+
         var usuario = await context.Usuarios
             .Where(x => x.Id == colaboradorId)
             .Where(x => x.DepartamentoId == departamentoId)
@@ -36,8 +36,8 @@ public class SolicitacaoReembolsoService(
                 "O departamento informado não é compatível com o usuário autenticado.",
                 StatusCodes.Status409Conflict
             );
-        
-        var solicitacao = new Models.SolicitacaoReembolso
+
+        var solicitacao = new SolicitacaoReembolso
         {
             Id = Guid.NewGuid(),
             ColaboradorId = colaboradorId,
@@ -67,86 +67,86 @@ public class SolicitacaoReembolsoService(
         Guid idSolicitacaoReembolso,
         Guid colaboradorId,
         ItemDespesaRequestDto itemDespesaDto
-        )
+    )
     {
-         var solicitacaoReembolso = await context
+        var solicitacaoReembolso = await context
             .SolicitacoesReembolso
             .Where(x => x.Id == idSolicitacaoReembolso)
             .Where(x => x.ColaboradorId == colaboradorId)
             .FirstOrDefaultAsync();
 
-         if (solicitacaoReembolso == null)
-             throw new ExcecaoRegraNegocio(
-                 "A solicitação de reembolso não foi encontrada.",
-                 StatusCodes.Status404NotFound
-             );
+        if (solicitacaoReembolso == null)
+            throw new ExcecaoRegraNegocio(
+                "A solicitação de reembolso não foi encontrada.",
+                StatusCodes.Status404NotFound
+            );
 
-         if (
-             solicitacaoReembolso.Status != StatusSolicitacaoReembolso.Rascunho &&
-             solicitacaoReembolso.Status != StatusSolicitacaoReembolso.DevolvidaPeloGestor &&
-             solicitacaoReembolso.Status != StatusSolicitacaoReembolso.DevolvidaPeloFinanceiro)
-             throw new ExcecaoRegraNegocio(
-                 "O status do reembolso não permite adicionar mais itens.",
-                 StatusCodes.Status409Conflict
-             );
-         
-         var hoje = DateOnly.FromDateTime(DateTime.UtcNow);
+        if (
+            solicitacaoReembolso.Status != StatusSolicitacaoReembolso.Rascunho &&
+            solicitacaoReembolso.Status != StatusSolicitacaoReembolso.DevolvidaPeloGestor &&
+            solicitacaoReembolso.Status != StatusSolicitacaoReembolso.DevolvidaPeloFinanceiro)
+            throw new ExcecaoRegraNegocio(
+                "O status do reembolso não permite adicionar mais itens.",
+                StatusCodes.Status409Conflict
+            );
 
-         if (itemDespesaDto.DataDespesa > hoje)
-             throw new ExcecaoRegraNegocio(
-                 "A data da despesa não pode ser futura.",
-                 StatusCodes.Status400BadRequest
-             );
+        var hoje = DateOnly.FromDateTime(DateTime.UtcNow);
 
-         var dataMinimaPermitida = DateOnly.FromDateTime(solicitacaoReembolso.CriadaEmUtc)
-             .AddDays(-90);
+        if (itemDespesaDto.DataDespesa > hoje)
+            throw new ExcecaoRegraNegocio(
+                "A data da despesa não pode ser futura.",
+                StatusCodes.Status400BadRequest
+            );
 
-         if (itemDespesaDto.DataDespesa < dataMinimaPermitida)
-             throw new ExcecaoRegraNegocio(
-                 "A data da despesa não pode ser anterior a 90 dias da criação da solicitação.",
-                 StatusCodes.Status400BadRequest
-             );
+        var dataMinimaPermitida = DateOnly.FromDateTime(solicitacaoReembolso.CriadaEmUtc)
+            .AddDays(-90);
 
-         if (
-             solicitacaoReembolso.MesReferencia.Year != itemDespesaDto.DataDespesa.Year 
-             || solicitacaoReembolso.MesReferencia.Month != itemDespesaDto.DataDespesa.Month)
-             throw new ExcecaoRegraNegocio(
-                 "A data da despesa deve pertencer ao mês de referência.",
-                 StatusCodes.Status400BadRequest
-             );
+        if (itemDespesaDto.DataDespesa < dataMinimaPermitida)
+            throw new ExcecaoRegraNegocio(
+                "A data da despesa não pode ser anterior a 90 dias da criação da solicitação.",
+                StatusCodes.Status400BadRequest
+            );
 
-         var categoria = await context
-             .CategoriasDespesa
-             .Where(x => x.Id == itemDespesaDto.CategoriaDespesaId)
-             .Where(x => x.Ativo == true)
-             .FirstOrDefaultAsync();
+        if (
+            solicitacaoReembolso.MesReferencia.Year != itemDespesaDto.DataDespesa.Year
+            || solicitacaoReembolso.MesReferencia.Month != itemDespesaDto.DataDespesa.Month)
+            throw new ExcecaoRegraNegocio(
+                "A data da despesa deve pertencer ao mês de referência.",
+                StatusCodes.Status400BadRequest
+            );
 
-         if (categoria == null)
-             throw new ExcecaoRegraNegocio(
-                 "A categoria de despesa não foi encontrada.",
-                 StatusCodes.Status404NotFound
-             );
-         
-         var itemDespesa = new ItemDespesa
-         {
-             SolicitacaoReembolsoId = idSolicitacaoReembolso,
-             Valor = itemDespesaDto.Valor,
-             Descricao = itemDespesaDto.Descricao,
-             CategoriaDespesaId =  itemDespesaDto.CategoriaDespesaId,
-             NomeEstabelecimento =  itemDespesaDto.NomeEstabelecimento,
-             DataDespesa = itemDespesaDto.DataDespesa
-         };
-        
-         await context.ItensDespesa.AddAsync(itemDespesa);
+        var categoria = await context
+            .CategoriasDespesa
+            .Where(x => x.Id == itemDespesaDto.CategoriaDespesaId)
+            .Where(x => x.Ativo == true)
+            .FirstOrDefaultAsync();
 
-         solicitacaoReembolso.ValorTotal += itemDespesaDto.Valor;
-        
-         await context.SaveChangesAsync();
-         
-         return itemDespesa;
+        if (categoria == null)
+            throw new ExcecaoRegraNegocio(
+                "A categoria de despesa não foi encontrada.",
+                StatusCodes.Status404NotFound
+            );
+
+        var itemDespesa = new ItemDespesa
+        {
+            SolicitacaoReembolsoId = idSolicitacaoReembolso,
+            Valor = itemDespesaDto.Valor,
+            Descricao = itemDespesaDto.Descricao,
+            CategoriaDespesaId = itemDespesaDto.CategoriaDespesaId,
+            NomeEstabelecimento = itemDespesaDto.NomeEstabelecimento,
+            DataDespesa = itemDespesaDto.DataDespesa
+        };
+
+        await context.ItensDespesa.AddAsync(itemDespesa);
+
+        solicitacaoReembolso.ValorTotal += itemDespesaDto.Valor;
+
+        await context.SaveChangesAsync();
+
+        return itemDespesa;
     }
 
-    public async Task<Models.SolicitacaoReembolso> Enviar(
+    public async Task<SolicitacaoReembolso> Enviar(
         Guid idSolicitacaoReembolso,
         Guid colaboradorId
     )
@@ -175,13 +175,13 @@ public class SolicitacaoReembolsoService(
         var existemItens = await context
             .ItensDespesa
             .AnyAsync(x => x.SolicitacaoReembolsoId == idSolicitacaoReembolso);
-        
+
         if (!existemItens)
             throw new ExcecaoRegraNegocio(
                 "Adicione pelo menos um item antes de enviar a solicitação.",
                 StatusCodes.Status409Conflict
             );
-        
+
         var statusAnterior = solicitacaoReembolso.Status;
         solicitacaoReembolso.Status = StatusSolicitacaoReembolso.AguardandoAprovacaoGestor;
         solicitacaoReembolso.EnviadaEmUtc = DateTime.UtcNow;
@@ -198,7 +198,7 @@ public class SolicitacaoReembolsoService(
 
         await context.HistoricosStatusSolicitacao.AddAsync(historico);
         await context.SaveChangesAsync();
-        
+
         return solicitacaoReembolso;
     }
 
@@ -213,22 +213,22 @@ public class SolicitacaoReembolsoService(
                 StatusCodes.Status400BadRequest
             );
 
-        var solicitacaoDeReembolso = await context.SolicitacoesReembolso  
+        var solicitacaoDeReembolso = await context.SolicitacoesReembolso
             .Where(x => x.Id == idSolicitacaoReembolso)
             .FirstOrDefaultAsync();
-        
+
         if (solicitacaoDeReembolso == null)
             throw new ExcecaoRegraNegocio(
                 "A solicitação de reembolso não foi encontrada.",
                 StatusCodes.Status404NotFound
             );
-        
-        if(solicitacaoDeReembolso.Status != StatusSolicitacaoReembolso.AguardandoAprovacaoGestor)
+
+        if (solicitacaoDeReembolso.Status != StatusSolicitacaoReembolso.AguardandoAprovacaoGestor)
             throw new ExcecaoRegraNegocio(
                 "A solicitação não está aguardando a aprovação do gestor.",
                 StatusCodes.Status409Conflict
             );
-        
+
         if (
             decisaoGestorRequestDto.Decisao != Enums.Decisao.Aprovada &&
             (string.IsNullOrWhiteSpace(decisaoGestorRequestDto.Comentario) ||
@@ -243,26 +243,26 @@ public class SolicitacaoReembolsoService(
             .Where(x => x.Id == solicitacaoDeReembolso.ColaboradorId)
             .Where(x => x.GestorId == gestorId)
             .FirstOrDefaultAsync();
-         
-         if(gestor == null)
-             throw new ExcecaoRegraNegocio(
-                 "Você não é o gestor responsável por esta solicitação.",
-                 StatusCodes.Status404NotFound
-             );
 
-         solicitacaoDeReembolso.Status = decisaoGestorRequestDto.Decisao switch
-         {
-             Enums.Decisao.Aprovada => StatusSolicitacaoReembolso.AguardandoValidacaoFinanceira,
-             Enums.Decisao.Rejeitada => StatusSolicitacaoReembolso.RejeitadaPeloGestor,
-             Enums.Decisao.Devolvida => StatusSolicitacaoReembolso.DevolvidaPeloGestor,
-             _ => throw new ExcecaoRegraNegocio(
-                 "A decisão informada é inválida.",
-                 StatusCodes.Status400BadRequest)
-         };
-         
-         solicitacaoDeReembolso.DecididaPeloGestorEmUtc = DateTime.UtcNow;
-         solicitacaoDeReembolso.AtualizadaEmUtc =  DateTime.UtcNow;
-         
+        if (gestor == null)
+            throw new ExcecaoRegraNegocio(
+                "Você não é o gestor responsável por esta solicitação.",
+                StatusCodes.Status404NotFound
+            );
+
+        solicitacaoDeReembolso.Status = decisaoGestorRequestDto.Decisao switch
+        {
+            Enums.Decisao.Aprovada => StatusSolicitacaoReembolso.AguardandoValidacaoFinanceira,
+            Enums.Decisao.Rejeitada => StatusSolicitacaoReembolso.RejeitadaPeloGestor,
+            Enums.Decisao.Devolvida => StatusSolicitacaoReembolso.DevolvidaPeloGestor,
+            _ => throw new ExcecaoRegraNegocio(
+                "A decisão informada é inválida.",
+                StatusCodes.Status400BadRequest)
+        };
+
+        solicitacaoDeReembolso.DecididaPeloGestorEmUtc = DateTime.UtcNow;
+        solicitacaoDeReembolso.AtualizadaEmUtc = DateTime.UtcNow;
+
         var decisaoAprovacao = new DecisaoAprovacao
         {
             SolicitacaoReembolsoId = solicitacaoDeReembolso.Id,
@@ -270,11 +270,11 @@ public class SolicitacaoReembolsoService(
             Comentario = decisaoGestorRequestDto.Comentario,
             Decisao = decisaoGestorRequestDto.Decisao,
             NivelDecisao = NivelDecisao.Manager,
-            CriadaEmUtc =  DateTime.UtcNow,
+            CriadaEmUtc = DateTime.UtcNow,
         };
-        
+
         await context.DecisoesAprovacao.AddAsync(decisaoAprovacao);
-        
+
         await context.HistoricosStatusSolicitacao.AddAsync(new HistoricoStatusSolicitacao
         {
             SolicitacaoReembolsoId = solicitacaoDeReembolso.Id,
@@ -283,9 +283,79 @@ public class SolicitacaoReembolsoService(
             AlteradoPorUsuarioId = gestorId,
             Motivo = decisaoGestorRequestDto.Comentario
         });
-        
+
         await context.SaveChangesAsync();
-        
+
         return new ResultadoDecisaoGestor(solicitacaoDeReembolso, decisaoAprovacao);
+    }
+
+    public async Task<IList<ListaSolicitacaoReembolsoResponseDto>> ListarReembolsosPorUsuario(
+        Guid colaboradorId)
+    {
+        return await context.SolicitacoesReembolso
+            .AsNoTracking()
+            .Where(x => x.ColaboradorId == colaboradorId)
+            .Select(x => new ListaSolicitacaoReembolsoResponseDto{
+                Id = x.Id,
+                NumeroSolicitacao = x.NumeroSolicitacao,
+                MesReferencia = x.MesReferencia,
+                Status = x.Status,
+                ValorTotal = x.ValorTotal,
+                CriadaEmUtc = x.CriadaEmUtc,
+                EnviadaEmUtc = x.EnviadaEmUtc,
+                AtualizadaEmUtc = x.AtualizadaEmUtc,
+            })
+            .ToListAsync();
+    }
+
+    public async Task<DetalheSolicitacaoReembolsoResponseDto?> ObterDetalhe(
+        Guid idSolitacaoReembolso,
+        Guid colaboradorId)
+    {
+        var detalhe =  await context.SolicitacoesReembolso
+            .AsNoTracking()
+            .Where(x => x.Id == idSolitacaoReembolso)
+            .Where(x => x.ColaboradorId == colaboradorId)
+            .Select(x => new DetalheSolicitacaoReembolsoResponseDto{
+                Id = x.Id,
+                NumeroSolicitacao = x.NumeroSolicitacao,
+                Status = x.Status,
+                ValorTotal = x.ValorTotal,
+                Itens = x.ItensDespesa.Select(x => new ItemDespesaDetalheResponseDto
+                {
+                    Id = x.Id,
+                    Categoria = x.CategoriaDespesa.Nome,
+                    DataDespesa = x.DataDespesa,
+                    Descricao = x.Descricao,
+                    Valor = x.Valor,
+                    NomeEstabelecimento = x.NomeEstabelecimento,
+                    NomeArquivoComprovante = ""
+                }).ToList(),
+                Decisoes = x.DecisoesAprovacao.Select(x => new DecisaoAprovacaoResponseDto
+                {
+                    NivelDecisao = x.NivelDecisao,
+                    Decisao = x.Decisao,
+                    Comentario = x.Comentario,
+                    DecididaPor = x.DecididaPorUsuario.NomeCompleto,
+                    CriadaEmUtc = x.CriadaEmUtc
+                }).ToList(),
+                Historico = x.HistoricosStatusSolicitacao.Select(x => new HistoricoStatusResponseDto
+                {
+                    StatusAnterior = x.StatusAnterior,
+                    NovoStatus = x.NovoStatus,
+                    Motivo = x.Motivo,
+                    AlteradoPor = x.AlteradoPorUsuario.NomeCompleto,
+                    CriadaEmUtc = x.CriadaEmUtc,
+                }).ToList()
+            })
+            .FirstOrDefaultAsync();
+        
+        if(detalhe == null)
+            throw new ExcecaoRegraNegocio(
+                "A solicitação de reembolso não foi encontrada.",
+                StatusCodes.Status404NotFound
+            );
+        
+        return detalhe;
     }
 }

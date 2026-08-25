@@ -1,9 +1,10 @@
 using System.Text;
+using System.Text.Json.Serialization;
 using GestaodeReembolsos;
 using GestaodeReembolsos.Data;
 using GestaodeReembolsos.Services;
 using GestaodeReembolsos.Services.Financeiro;
-using GestaodeReembolsos.Services.SolicitacaoReembolso;
+using GestaodeReembolsos.Services.SolicitacoesReembolso;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
@@ -97,14 +98,14 @@ void ConfigureMvc(WebApplicationBuilder builder)
 {
     builder
         .Services
-        .AddControllers();
-    // .ConfigureApiBehaviorOptions(options =>
-    // {
-    //     options.SuppressModelStateInvalidFilter = true;
-    // });
-    // .AddJsonOptions(x =>
-    // {
-    //     // x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
-    //     // x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
-    // });
+        .AddControllers()
+        .ConfigureApiBehaviorOptions(options =>
+        {
+            options.SuppressModelStateInvalidFilter = true;
+        })
+        .AddJsonOptions(x =>
+        {
+            x.JsonSerializerOptions.ReferenceHandler = ReferenceHandler.IgnoreCycles;
+            x.JsonSerializerOptions.DefaultIgnoreCondition = JsonIgnoreCondition.WhenWritingDefault;
+        });
 }

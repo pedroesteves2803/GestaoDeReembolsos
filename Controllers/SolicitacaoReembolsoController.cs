@@ -1,13 +1,12 @@
 using System.Data.Common;
 using System.Security.Claims;
-using GestaodeReembolsos.Data;
 using GestaodeReembolsos.Dtos.SolicitacaoReembolso;
 using GestaodeReembolsos.Dtos.Shared;
 using GestaodeReembolsos.Exceptions;
 using GestaodeReembolsos.Extensions;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using GestaodeReembolsos.Services.SolicitacaoReembolso;
+using GestaodeReembolsos.Services.SolicitacoesReembolso;
 namespace GestaodeReembolsos.Controllers;
 
 [ApiController]
@@ -215,6 +214,55 @@ public class SolicitacaoReembolsoController(
             return StatusCode(
                 excecao.StatusCode,
                 new ApiResponseDto<DecisaoGestorResponseDto>(
+                    false,
+                    excecao.Message
+                )
+            );
+        }
+        catch (DbException exception)
+        {
+            return StatusCode(
+                StatusCodes.Status400BadRequest,
+                exception.Message
+            );
+        }
+    }
+
+    [Authorize]
+    [HttpGet("/api/v1/solicitacoes-reembolso")]
+    public async Task<ActionResult> Listar()
+    {
+         var solitacoesDeReembolso = await solicitacaoReembolsoService
+             .ListarReembolsosPorUsuario(User.ObterIdUsuario());
+         
+         return Ok(new ApiResponseDto<IList<ListaSolicitacaoReembolsoResponseDto>>(
+             true,
+             "Solicitações encontradas com sucesso.",
+             solitacoesDeReembolso
+         ));
+    }
+
+    [Authorize]
+    [HttpGet("/api/v1/solicitacoes-reembolso/{idSolicitacao}")]
+    public async Task<ActionResult> ObterDetalhe(
+        [FromRoute] Guid idSolicitacao
+    ){
+        try
+        {
+            var detalhe = await solicitacaoReembolsoService
+                .ObterDetalhe(idSolicitacao, User.ObterIdUsuario());
+
+            return Ok(new ApiResponseDto<DetalheSolicitacaoReembolsoResponseDto>(
+                true,
+                "Solicitação encontrada com sucesso.",
+                detalhe
+            ));
+        }
+        catch (ExcecaoRegraNegocio excecao)
+        {
+            return StatusCode(
+                excecao.StatusCode,
+                new ApiResponseDto<DetalheSolicitacaoReembolsoResponseDto>(
                     false,
                     excecao.Message
                 )
