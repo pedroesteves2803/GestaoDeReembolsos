@@ -358,4 +358,138 @@ public class SolicitacaoReembolsoService(
         
         return detalhe;
     }
+
+    public async Task<ItemDespesa> Editar(
+        Guid idSolitacaoReembolso,
+        Guid idItem,
+        Guid colaboradorId,
+        ItemDespesaRequestDto itemDespesaDto)
+    {
+        var solicitacaoDeReembolso = await context
+            .SolicitacoesReembolso
+            .Where(x => x.ColaboradorId == colaboradorId)
+            .FirstOrDefaultAsync(x => x.Id == idSolitacaoReembolso);
+
+        if (solicitacaoDeReembolso == null)
+            throw new ExcecaoRegraNegocio(
+                "A solicitação de reembolso não foi encontrada.",
+                StatusCodes.Status404NotFound
+            );
+
+        if (
+            solicitacaoDeReembolso.Status != StatusSolicitacaoReembolso.Rascunho &&
+            solicitacaoDeReembolso.Status != StatusSolicitacaoReembolso.DevolvidaPeloGestor &&
+            solicitacaoDeReembolso.Status != StatusSolicitacaoReembolso.DevolvidaPeloFinanceiro
+        )
+            throw new ExcecaoRegraNegocio(
+                "O status da solicitação não permite alterar itens.",
+                StatusCodes.Status409Conflict
+            );
+        
+        var item = await context
+            .ItensDespesa
+            .FirstOrDefaultAsync(x =>
+                x.Id == idItem &&
+                x.SolicitacaoReembolsoId == idSolitacaoReembolso);
+        
+        if(item == null)
+            throw new ExcecaoRegraNegocio(
+                "O item de despesa não foi encontrado.",
+                StatusCodes.Status404NotFound
+            );
+        
+        
+        var dataMinimaPermitida = DateOnly.FromDateTime(solicitacaoDeReembolso.CriadaEmUtc)
+            .AddDays(-90);
+
+        if (itemDespesaDto.DataDespesa < dataMinimaPermitida)
+            throw new ExcecaoRegraNegocio(
+                "A data da despesa não pode ser anterior a 90 dias da criação da solicitação.",
+                StatusCodes.Status400BadRequest
+            );
+        
+        if (itemDespesaDto.DataDespesa > DateOnly.FromDateTime(DateTime.UtcNow))
+            throw new ExcecaoRegraNegocio(
+                "A data da despesa não pode ser futura.",
+                StatusCodes.Status400BadRequest
+            );
+
+        if (
+            solicitacaoDeReembolso.MesReferencia.Year != itemDespesaDto.DataDespesa.Year
+            || solicitacaoDeReembolso.MesReferencia.Month != itemDespesaDto.DataDespesa.Month)
+            throw new ExcecaoRegraNegocio(
+                "A data da despesa deve pertencer ao mês de referência.",
+                StatusCodes.Status400BadRequest
+            );
+
+        var categoria = await context
+            .CategoriasDespesa
+            .Where(x => x.Id == itemDespesaDto.CategoriaDespesaId)
+            .Where(x => x.Ativo == true)
+            .FirstOrDefaultAsync();
+
+        if (categoria == null)
+            throw new ExcecaoRegraNegocio(
+                "A categoria de despesa não foi encontrada.",
+                StatusCodes.Status404NotFound
+            );
+        
+        solicitacaoDeReembolso.ValorTotal =
+            solicitacaoDeReembolso.ValorTotal - item.Valor + itemDespesaDto.Valor;
+        solicitacaoDeReembolso.AtualizadaEmUtc = DateTime.UtcNow;
+        
+        item.CategoriaDespesaId = categoria.Id;
+        item.DataDespesa = itemDespesaDto.DataDespesa;
+        item.Descricao = itemDespesaDto.Descricao;
+        item.Valor = itemDespesaDto.Valor;
+        item.NomeEstabelecimento = itemDespesaDto.NomeEstabelecimento;
+        
+        await context.SaveChangesAsync();
+
+        return item;
+    }
+
+    public async Task Excluir(
+        Guid idSolitacaoReembolso,
+        Guid idItem,
+        Guid colaboradorId)
+    {
+        var solicitacaoDeReembolso = await context
+            .SolicitacoesReembolso
+            .Where(x => x.ColaboradorId == colaboradorId)
+            .FirstOrDefaultAsync(x => x.Id == idSolitacaoReembolso);
+
+        if (solicitacaoDeReembolso == null)
+            throw new ExcecaoRegraNegocio(
+                "A solicitação de reembolso não foi encontrada.",
+                StatusCodes.Status404NotFound
+            );
+        
+        if (
+            solicitacaoDeReembolso.Status != StatusSolicitacaoReembolso.Rascunho &&
+            solicitacaoDeReembolso.Status != StatusSolicitacaoReembolso.DevolvidaPeloGestor &&
+            solicitacaoDeReembolso.Status != StatusSolicitacaoReembolso.DevolvidaPeloFinanceiro)
+            throw new ExcecaoRegraNegocio(
+                "O status da solicitação não permite excluir itens.",
+                StatusCodes.Status409Conflict
+            );
+        
+        var item = await context
+            .ItensDespesa
+            .FirstOrDefaultAsync(x =>
+                x.Id == idItem &&
+                x.SolicitacaoReembolsoId == idSolitacaoReembolso);
+        
+        if(item == null)
+            throw new ExcecaoRegraNegocio(
+                "O item de despesa não foi encontrado.",
+                StatusCodes.Status404NotFound
+            );
+        
+        solicitacaoDeReembolso.ValorTotal -= item.Valor;
+        solicitacaoDeReembolso.AtualizadaEmUtc = DateTime.UtcNow;
+        
+        context.ItensDespesa.Remove(item);
+        await context.SaveChangesAsync();
+    }
 }

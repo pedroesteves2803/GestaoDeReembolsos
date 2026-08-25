@@ -276,4 +276,82 @@ public class SolicitacaoReembolsoController(
             );
         }
     }
+
+    [Authorize(Roles = "Employee")]
+    [HttpPut("/api/v1/solicitacoes-reembolso/{idSolicitacao}/itens/{idItem}")]
+    public async Task<ActionResult> Editar(
+        [FromRoute] Guid idSolicitacao,
+        [FromRoute] Guid idItem,
+        [FromBody] ItemDespesaRequestDto dto
+        )
+    {
+        try
+        {
+            var itemDespesa = await solicitacaoReembolsoService.Editar(
+                idSolicitacao,
+                    idItem,
+                    User.ObterIdUsuario(),
+                    dto
+                );
+            
+            return Ok(new ApiResponseDto<ItemDespesaResponseDto>(
+                true,
+                "Item alterado com sucesso.",
+                new ItemDespesaResponseDto(itemDespesa.Id)
+
+            ));
+        }
+        catch (ExcecaoRegraNegocio excecao)
+        {
+            return StatusCode(
+                excecao.StatusCode,
+                new ApiResponseDto<ItemDespesaResponseDto>(
+                    false,
+                    excecao.Message
+                )
+            );
+        }
+        catch (DbException exception)
+        {
+            return StatusCode(
+                StatusCodes.Status400BadRequest,
+                exception.Message
+            );
+        }
+    }
+
+    [Authorize(Roles = "Employee")]
+    [HttpDelete("/api/v1/solicitacoes-reembolso/{idSolicitacao}/itens/{idItem}")]
+    public async Task<ActionResult> Excluir(
+        [FromRoute] Guid idSolicitacao,
+        [FromRoute] Guid idItem)
+    {
+        try
+        { 
+            await solicitacaoReembolsoService.Excluir(idSolicitacao, idItem, User.ObterIdUsuario());
+            
+            return Ok(new ApiResponseDto<ItemDespesaResponseDto>(
+                true,
+                "Item de despesa excluído com sucesso."
+
+            ));
+        }
+        catch (ExcecaoRegraNegocio excecao)
+        {
+            return StatusCode(
+                excecao.StatusCode,
+                new ApiResponseDto<ItemDespesaResponseDto>(
+                    false,
+                    excecao.Message
+                )
+            );
+        }
+        catch (DbException exception)
+        {
+            return StatusCode(
+                StatusCodes.Status400BadRequest,
+                exception.Message
+            );
+        }
+    }
 }

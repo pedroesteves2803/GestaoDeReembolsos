@@ -7,6 +7,7 @@ public class ItemDespesaRequestDto
     [NotEmptyGuid]
     public Guid CategoriaDespesaId { get; set; }
 
+    [Required(ErrorMessage = "Data da despesa é obrigatório.")]
     public DateOnly DataDespesa { get; set; }
 
     [Required(ErrorMessage = "Descrição é obrigatória.")]
