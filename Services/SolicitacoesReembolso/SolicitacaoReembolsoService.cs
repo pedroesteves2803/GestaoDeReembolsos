@@ -421,6 +421,7 @@ public class SolicitacaoReembolsoService(
                 "A data da despesa deve pertencer ao mês de referência.",
                 StatusCodes.Status400BadRequest
             );
+        
 
         var categoria = await context
             .CategoriasDespesa
@@ -434,8 +435,7 @@ public class SolicitacaoReembolsoService(
                 StatusCodes.Status404NotFound
             );
         
-        solicitacaoDeReembolso.ValorTotal =
-            solicitacaoDeReembolso.ValorTotal - item.Valor + itemDespesaDto.Valor;
+        solicitacaoDeReembolso.ValorTotal = solicitacaoDeReembolso.ValorTotal - item.Valor + itemDespesaDto.Valor;
         solicitacaoDeReembolso.AtualizadaEmUtc = DateTime.UtcNow;
         
         item.CategoriaDespesaId = categoria.Id;
@@ -443,6 +443,7 @@ public class SolicitacaoReembolsoService(
         item.Descricao = itemDespesaDto.Descricao;
         item.Valor = itemDespesaDto.Valor;
         item.NomeEstabelecimento = itemDespesaDto.NomeEstabelecimento;
+        item.AtualizadaEmUtc = DateTime.UtcNow;
         
         await context.SaveChangesAsync();
 
@@ -490,6 +491,52 @@ public class SolicitacaoReembolsoService(
         solicitacaoDeReembolso.AtualizadaEmUtc = DateTime.UtcNow;
         
         context.ItensDespesa.Remove(item);
+        await context.SaveChangesAsync();
+    }
+
+    public async Task Cancelar(
+        Guid idSolitacaoReembolso,
+        Guid colaboradorId,
+        CancelarRequestDto cancelarRequestDto)
+    {
+        var solicitacaoDeReembolso = await context
+            .SolicitacoesReembolso
+            .FirstOrDefaultAsync(x => x.Id == idSolitacaoReembolso);
+
+        if (solicitacaoDeReembolso == null)
+            throw new ExcecaoRegraNegocio(
+                "A solicitação de reembolso não foi encontrada.",
+                StatusCodes.Status404NotFound
+            );
+
+        if (solicitacaoDeReembolso.ColaboradorId != colaboradorId)
+            throw new ExcecaoRegraNegocio(
+                "A solicitação de reembolso não foi encontrada.",
+                StatusCodes.Status404NotFound
+            );
+        
+        if (
+            solicitacaoDeReembolso.Status != StatusSolicitacaoReembolso.Rascunho &&
+            solicitacaoDeReembolso.Status != StatusSolicitacaoReembolso.DevolvidaPeloGestor &&
+            solicitacaoDeReembolso.Status != StatusSolicitacaoReembolso.DevolvidaPeloFinanceiro)
+            throw new ExcecaoRegraNegocio(
+                "O status da solicitação não permite cancelamento.",
+                StatusCodes.Status409Conflict
+            );    
+        
+        var statusAnteriro =  solicitacaoDeReembolso.Status;
+        solicitacaoDeReembolso.Status = StatusSolicitacaoReembolso.Cancelada;
+        solicitacaoDeReembolso.AtualizadaEmUtc = DateTime.UtcNow;
+        
+        await context.HistoricosStatusSolicitacao.AddAsync(new HistoricoStatusSolicitacao
+        {
+            SolicitacaoReembolsoId = solicitacaoDeReembolso.Id,
+            StatusAnterior = statusAnteriro,
+            NovoStatus = solicitacaoDeReembolso.Status,
+            AlteradoPorUsuarioId = colaboradorId,
+            Motivo = cancelarRequestDto.Comentario
+        });
+        
         await context.SaveChangesAsync();
     }
 }

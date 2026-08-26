@@ -1,0 +1,122 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Gestão de Reembolsos · Estrutura e regras</title>
+  <style>
+    :root {
+      --bg: #f5f7fb; --surface: #fff; --ink: #172033; --muted: #64748b;
+      --line: #dbe3ef; --blue: #2563eb; --blue-soft: #eaf1ff; --green: #15803d;
+      --green-soft: #eaf8ef; --orange: #c2410c; --orange-soft: #fff1e8;
+      --red: #b91c1c; --red-soft: #fff0f0; --purple: #7e22ce; --purple-soft: #f5edff;
+      --shadow: 0 16px 40px rgba(31, 52, 85, .08);
+    }
+    * { box-sizing: border-box; }
+    body { margin: 0; color: var(--ink); background: var(--bg); font: 15px/1.5 Inter, ui-sans-serif, system-ui, -apple-system, sans-serif; }
+    .shell { max-width: 1440px; margin: 0 auto; padding: 32px clamp(18px, 4vw, 56px) 64px; }
+    header { display: flex; justify-content: space-between; gap: 24px; align-items: end; margin-bottom: 28px; }
+    h1, h2, h3, p { margin-top: 0; }
+    h1 { margin-bottom: 8px; font-size: clamp(26px, 4vw, 42px); letter-spacing: -.04em; }
+    h2 { margin-bottom: 16px; font-size: 22px; }
+    h3 { margin-bottom: 8px; font-size: 16px; }
+    .intro { max-width: 760px; color: var(--muted); margin-bottom: 0; }
+    .legend { display: flex; flex-wrap: wrap; gap: 8px; color: var(--muted); font-size: 12px; justify-content: end; }
+    .legend span { display: inline-flex; align-items: center; gap: 6px; }
+    .dot { width: 10px; height: 10px; border-radius: 50%; display: inline-block; }
+    .dot.core { background: var(--blue); } .dot.audit { background: var(--purple); }
+    .dot.finance { background: var(--green); } .dot.catalog { background: var(--orange); }
+    .tabs { display: flex; gap: 8px; margin-bottom: 20px; border-bottom: 1px solid var(--line); }
+    .tabs button { border: 0; background: transparent; color: var(--muted); padding: 11px 14px; cursor: pointer; font: inherit; border-bottom: 2px solid transparent; }
+    .tabs button[aria-selected="true"] { color: var(--blue); border-bottom-color: var(--blue); font-weight: 650; }
+    .panel { display: none; } .panel.active { display: block; }
+    .db-grid { display: grid; grid-template-columns: repeat(4, minmax(210px, 1fr)); gap: 16px; align-items: start; }
+    .entity { background: var(--surface); border: 1px solid var(--line); border-top: 4px solid var(--blue); border-radius: 12px; box-shadow: var(--shadow); overflow: hidden; }
+    .entity.catalog { border-top-color: var(--orange); } .entity.audit { border-top-color: var(--purple); } .entity.finance { border-top-color: var(--green); }
+    .entity-head { padding: 14px 16px 10px; border-bottom: 1px solid var(--line); }
+    .entity-head h3 { margin: 0; } .entity-head small { color: var(--muted); }
+    .fields { list-style: none; padding: 10px 16px 14px; margin: 0; }
+    .fields li { display: flex; justify-content: space-between; gap: 10px; padding: 4px 0; border-bottom: 1px dashed #edf1f6; font-size: 12px; }
+    .fields li:last-child { border-bottom: 0; } .fields code { color: var(--ink); } .fields span { color: var(--muted); text-align: right; }
+    .relations { margin: 22px 0 0; padding: 16px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+    .relations p { margin: 6px 0; color: var(--muted); } .relations strong { color: var(--ink); }
+    .flow { display: grid; gap: 18px; }
+    .flowline { display: grid; grid-template-columns: repeat(5, 1fr); gap: 10px; align-items: stretch; }
+    .state { position: relative; padding: 16px; min-height: 112px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: var(--shadow); }
+    .state::after { content: '→'; position: absolute; right: -17px; top: 41%; color: var(--muted); font-size: 22px; z-index: 1; }
+    .state:last-child::after { display: none; }
+    .state small { display: block; color: var(--muted); margin-bottom: 7px; } .state strong { display: block; font-size: 14px; }
+    .state.employee { border-top: 4px solid var(--blue); } .state.manager { border-top: 4px solid var(--orange); }
+    .state.finance { border-top: 4px solid var(--green); } .state.paid { border-top: 4px solid var(--purple); }
+    .rule-grid { display: grid; grid-template-columns: repeat(3, minmax(220px, 1fr)); gap: 16px; margin-top: 20px; }
+    .rule { padding: 18px; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; }
+    .rule p { color: var(--muted); margin-bottom: 0; } .rule strong { color: var(--ink); }
+    .rule ul { margin: 10px 0 0; padding-left: 18px; color: var(--muted); }
+    .status-table { width: 100%; border-collapse: collapse; background: var(--surface); border: 1px solid var(--line); border-radius: 12px; overflow: hidden; display: table; }
+    .status-table th, .status-table td { padding: 11px 14px; border-bottom: 1px solid var(--line); text-align: left; vertical-align: top; }
+    .status-table th { background: #f8fafc; font-size: 12px; color: var(--muted); } .status-table tr:last-child td { border-bottom: 0; }
+    .badge { display: inline-block; padding: 3px 8px; border-radius: 999px; background: var(--blue-soft); color: var(--blue); font-size: 12px; white-space: nowrap; }
+    .note { margin-top: 24px; padding: 14px 16px; border-left: 4px solid var(--orange); background: var(--orange-soft); color: #7c2d12; border-radius: 8px; }
+    @media (max-width: 1080px) { .db-grid { grid-template-columns: repeat(3, minmax(200px, 1fr)); } .flowline { grid-template-columns: repeat(3, 1fr); } .state::after { display: none; } }
+    @media (max-width: 720px) { header { display: block; } .legend { justify-content: start; margin-top: 16px; } .db-grid, .rule-grid, .flowline { grid-template-columns: 1fr; } .status-table { display: block; overflow-x: auto; white-space: nowrap; } }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <header>
+      <div>
+        <h1>Gestão de Reembolsos</h1>
+        <p class="intro">Mapa visual do banco de dados e das regras que conduzem uma solicitação desde o rascunho até o pagamento.</p>
+      </div>
+      <div class="legend" aria-label="Legenda"><span><i class="dot core"></i> fluxo principal</span><span><i class="dot catalog"></i> cadastros</span><span><i class="dot audit"></i> auditoria</span><span><i class="dot finance"></i> financeiro</span></div>
+    </header>
+
+    <nav class="tabs" role="tablist" aria-label="Visões da aplicação">
+      <button type="button" role="tab" aria-selected="true" aria-controls="banco" data-tab="banco">Estrutura do banco</button>
+      <button type="button" role="tab" aria-selected="false" aria-controls="regras" data-tab="regras">Fluxo e regras</button>
+    </nav>
+
+    <section id="banco" class="panel active" role="tabpanel">
+      <h2>Entidades principais</h2>
+      <div class="db-grid">
+        <article class="entity"><div class="entity-head"><h3>Usuario</h3><small>quem participa do processo</small></div><ul class="fields"><li><code>Id</code><span>Guid · PK</span></li><li><code>NomeCompleto</code><span>string</span></li><li><code>Email</code><span>único</span></li><li><code>PerfilUsuario</code><span>enum</span></li><li><code>DepartamentoId</code><span>FK</span></li><li><code>GestorId</code><span>FK opcional</span></li><li><code>Ativo</code><span>bool</span></li></ul></article>
+        <article class="entity catalog"><div class="entity-head"><h3>Departamento</h3><small>unidade organizacional</small></div><ul class="fields"><li><code>Id</code><span>Guid · PK</span></li><li><code>Nome</code><span>string único</span></li><li><code>CodigoCentroCusto</code><span>string único</span></li><li><code>Ativo</code><span>bool</span></li><li><code>CriadaEmUtc</code><span>datetime2</span></li></ul></article>
+        <article class="entity catalog"><div class="entity-head"><h3>CategoriaDespesa</h3><small>classificação e limite</small></div><ul class="fields"><li><code>Id</code><span>Guid · PK</span></li><li><code>Nome</code><span>string único</span></li><li><code>LimiteMensal</code><span>decimal?</span></li><li><code>ExigeComprovante</code><span>bool</span></li><li><code>Ativo</code><span>bool</span></li></ul></article>
+        <article class="entity"><div class="entity-head"><h3>SolicitacaoReembolso</h3><small>agrega o pedido</small></div><ul class="fields"><li><code>Id</code><span>Guid · PK</span></li><li><code>NumeroSolicitacao</code><span>único</span></li><li><code>ColaboradorId</code><span>FK</span></li><li><code>DepartamentoId</code><span>FK</span></li><li><code>Status</code><span>enum</span></li><li><code>ValorTotal</code><span>decimal</span></li><li><code>Versao</code><span>rowversion</span></li></ul></article>
+        <article class="entity"><div class="entity-head"><h3>ItemDespesa</h3><small>despesas do pedido</small></div><ul class="fields"><li><code>Id</code><span>Guid · PK</span></li><li><code>SolicitacaoReembolsoId</code><span>FK</span></li><li><code>CategoriaDespesaId</code><span>FK</span></li><li><code>DataDespesa</code><span>date</span></li><li><code>Descricao</code><span>10–300 caracteres</span></li><li><code>Valor</code><span>0,01–50.000</span></li><li><code>NomeArquivoComprovante</code><span>string?</span></li></ul></article>
+        <article class="entity audit"><div class="entity-head"><h3>HistoricoStatusSolicitacao</h3><small>trilha de auditoria</small></div><ul class="fields"><li><code>Id</code><span>Guid · PK</span></li><li><code>StatusAnterior</code><span>enum?</span></li><li><code>NovoStatus</code><span>enum</span></li><li><code>SolicitacaoReembolsoId</code><span>FK</span></li><li><code>AlteradoPorUsuarioId</code><span>FK</span></li><li><code>Motivo</code><span>string?</span></li></ul></article>
+        <article class="entity audit"><div class="entity-head"><h3>DecisaoAprovacao</h3><small>decisões do processo</small></div><ul class="fields"><li><code>Id</code><span>Guid · PK</span></li><li><code>SolicitacaoReembolsoId</code><span>FK</span></li><li><code>DecididaPorUsuarioId</code><span>FK</span></li><li><code>NivelDecisao</code><span>Manager / Finance</span></li><li><code>Decisao</code><span>enum</span></li><li><code>Comentario</code><span>string?</span></li></ul></article>
+        <article class="entity finance"><div class="entity-head"><h3>Pagamento</h3><small>liquidação financeira</small></div><ul class="fields"><li><code>Id</code><span>Guid · PK</span></li><li><code>SolicitacaoReembolsoId</code><span>FK único</span></li><li><code>ReferenciaPagamento</code><span>única</span></li><li><code>ValorPago</code><span>decimal</span></li><li><code>DataPagamento</code><span>date</span></li><li><code>ProcessadoPorUsuarioId</code><span>FK</span></li></ul></article>
+      </div>
+      <div class="relations"><h3>Relacionamentos</h3><p><strong>Usuario 1:N SolicitacaoReembolso</strong> · um colaborador possui vários pedidos.</p><p><strong>SolicitacaoReembolso 1:N ItemDespesa</strong> · cada pedido soma seus itens.</p><p><strong>SolicitacaoReembolso 1:N DecisaoAprovacao / HistoricoStatusSolicitacao</strong> · decisões e mudanças são preservadas.</p><p><strong>SolicitacaoReembolso 1:1 Pagamento</strong> · um pedido aprovado pode ter uma liquidação.</p></div>
+    </section>
+
+    <section id="regras" class="panel" role="tabpanel">
+      <h2>Fluxo de estados</h2>
+      <div class="flowline" aria-label="Fluxo da solicitação">
+        <div class="state employee"><small>1 · Colaborador</small><strong>Rascunho</strong><span>cria e adiciona despesas</span></div>
+        <div class="state employee"><small>2 · Envio</small><strong>Aguardando aprovação do gestor</strong><span>exige itens válidos</span></div>
+        <div class="state manager"><small>3 · Gestor</small><strong>Aguardando validação financeira</strong><span>aprovada pelo gestor</span></div>
+        <div class="state finance"><small>4 · Financeiro</small><strong>Aprovada para pagamento</strong><span>valor e documentos conferidos</span></div>
+        <div class="state paid"><small>5 · Pagamento</small><strong>Paga</strong><span>referência única e valor integral</span></div>
+      </div>
+      <div class="rule-grid">
+        <article class="rule"><h3>Criação e edição</h3><p>O pedido pertence ao colaborador autenticado.</p><ul><li>Itens ficam no mês de referência.</li><li>Data não pode ser futura.</li><li>Despesa deve estar dentro de 90 dias.</li><li>Devolvidas podem ser corrigidas e reenviadas.</li></ul></article>
+        <article class="rule"><h3>Decisão</h3><p>O responsável só decide na sua etapa.</p><ul><li>Gestor direto aprova, rejeita ou devolve.</li><li>Finance/Admin validam a etapa financeira.</li><li>Rejeição e devolução exigem motivo de 10–500 caracteres.</li><li>Cada decisão cria histórico.</li></ul></article>
+        <article class="rule"><h3>Pagamento</h3><p>Somente pedidos aprovados financeiramente podem ser pagos.</p><ul><li>Valor pago deve ser igual ao total.</li><li>Data de pagamento não pode ser futura.</li><li>Referência é única.</li><li>Pedido pago não deve ser alterado.</li></ul></article>
+      </div>
+      <h2 style="margin-top:28px">Transições de rejeição e devolução</h2>
+      <table class="status-table"><thead><tr><th>Origem</th><th>Ação</th><th>Novo estado</th><th>Quem continua</th></tr></thead><tbody><tr><td><span class="badge">Aguardando gestor</span></td><td>Devolver</td><td>DevolvidaPeloGestor</td><td>Colaborador corrige e reenvia</td></tr><tr><td><span class="badge">Aguardando validação</span></td><td>Devolver</td><td>DevolvidaPeloFinanceiro</td><td>Colaborador corrige e reenvia</td></tr><tr><td><span class="badge">Aguardando gestor</span></td><td>Rejeitar</td><td>RejeitadaPeloGestor</td><td>Fluxo encerrado</td></tr><tr><td><span class="badge">Aguardando validação</span></td><td>Rejeitar</td><td>RejeitadaPeloFinanceiro</td><td>Fluxo encerrado</td></tr></tbody></table>
+      <div class="note"><strong>Regra de segurança:</strong> listagens e detalhes devem filtrar pelo usuário autenticado; não basta conhecer o ID da solicitação.</div>
+    </section>
+  </main>
+  <script>
+    document.querySelectorAll('[data-tab]').forEach(function (button) {
+      button.addEventListener('click', function () {
+        document.querySelectorAll('[data-tab]').forEach(function (item) { item.setAttribute('aria-selected', item === button ? 'true' : 'false'); });
+        document.querySelectorAll('.panel').forEach(function (panel) { panel.classList.toggle('active', panel.id === button.dataset.tab); });
+      });
+    });
+  </script>
+</body>
+</html>

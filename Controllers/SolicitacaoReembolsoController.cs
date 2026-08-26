@@ -354,4 +354,44 @@ public class SolicitacaoReembolsoController(
             );
         }
     }
+    
+    [Authorize(Roles = "Employee")]
+    [HttpPost("/api/v1/solicitacoes-reembolso/{idSolicitacao}/cancelar")]
+    public async Task<ActionResult> Cancelar(
+        [FromRoute] Guid idSolicitacao,
+        [FromBody] CancelarRequestDto dto
+        )
+    {
+        try
+        {
+            await solicitacaoReembolsoService.Cancelar(
+                idSolicitacao,
+                User.ObterIdUsuario(),
+                dto
+                );
+            
+            return Ok(new ApiResponseDto<object?>(
+                true,
+                "Solicitação de reembolso cancelada com sucesso."
+
+            ));
+        }
+        catch (ExcecaoRegraNegocio excecao)
+        {
+            return StatusCode(
+                excecao.StatusCode,
+                new ApiResponseDto<object?>(
+                    false,
+                    excecao.Message
+                )
+            );
+        }
+        catch (DbException exception)
+        {
+            return StatusCode(
+                StatusCodes.Status400BadRequest,
+                exception.Message
+            );
+        }
+    }
 }
